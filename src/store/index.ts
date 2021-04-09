@@ -19,6 +19,7 @@ import { version } from './version'
 import { cameras } from './cameras'
 import { mesh } from './mesh'
 import { wait } from './wait'
+import { gcodePreview } from './gcodePreview'
 
 Vue.use(Vuex)
 
@@ -39,7 +40,8 @@ export default new Vuex.Store<RootState>({
     version,
     cameras,
     mesh,
-    wait
+    wait,
+    gcodePreview
   },
   mutations: {},
   actions: {

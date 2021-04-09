@@ -221,6 +221,7 @@ app:
       fans_outputs: Fans & Outputs
       history: Job History
       home: Dashboard
+      gcode_preview: Gcode Preview
       jobs: Jobs
       limits: Printer Limits
       macros: Macros

@@ -38,6 +38,7 @@ export const defaultState = (): ConfigState => {
       ],
       dashboard2: [
         { name: 'temperature-card', enabled: true },
+        { name: 'gcode-preview-card', enabled: true },
         { name: 'jobs-card', enabled: true },
         { name: 'console-card', enabled: true }
       ]

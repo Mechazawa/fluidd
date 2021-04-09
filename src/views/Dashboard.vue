@@ -55,6 +55,7 @@ import MacrosCard from '@/components/widgets/macros/MacrosCard.vue'
 import ConsoleCard from '@/components/widgets/console/ConsoleCard.vue'
 import OutputsCard from '@/components/widgets/outputs/OutputsCard.vue'
 import PrinterLimitsCard from '@/components/widgets/limits/PrinterLimitsCard.vue'
+import GcodePreviewCard from '@/components/widgets/gcode-preview/GcodePreviewCard.vue'
 
 @Component({
   components: {
@@ -67,7 +68,8 @@ import PrinterLimitsCard from '@/components/widgets/limits/PrinterLimitsCard.vue
     CameraCard,
     PrinterLimitsCard,
     ConsoleCard,
-    OutputsCard
+    OutputsCard,
+    GcodePreviewCard
   }
 })
 export default class Dashboard extends Mixins(StateMixin) {
