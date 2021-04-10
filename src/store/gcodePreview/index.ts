@@ -10,7 +10,7 @@ import { RootState } from '../types'
  */
 export const defaultState = (): GcodePreviewState => {
   return {
-    layer: 0
+    moves: []
   }
 }
 

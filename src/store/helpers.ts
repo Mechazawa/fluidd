@@ -1,10 +1,19 @@
 import { ChartData } from './charts/types'
-import { FileChangeItem, FilePaths, AppFile, AppFileWithMeta, KlipperFile, KlipperFileWithMeta, Thumbnail } from './files/types'
+import {
+  FileChangeItem,
+  FilePaths,
+  AppFile,
+  AppFileWithMeta,
+  KlipperFile,
+  KlipperFileWithMeta,
+  Thumbnail
+} from './files/types'
 import { SocketActions } from '@/socketActions'
 import store from '@/store'
 import { KlipperMesh, ProcessedMesh } from './mesh/types'
+import Vue from 'vue'
 
-export const isOfType = <T>(
+export const isOfType = <T> (
   varToBeChecked: any,
   propertyToCheckFor: keyof T
 ): varToBeChecked is T => (varToBeChecked as T)[propertyToCheckFor] !== undefined
@@ -133,7 +142,10 @@ export const handleAddChartEntry = (retention: number, keys: string[]) => {
       : null
     if (!date2 || date1.getTime() - date2.getTime() > diff) {
       const data = configureChartEntry(date1)
-      store.commit('charts/setChartEntry', { data, retention })
+      store.commit('charts/setChartEntry', {
+        data,
+        retention
+      })
     }
   }
 }
@@ -277,4 +289,50 @@ export const transformMesh = (mesh: KlipperMesh, meshMatrix: string, makeFlat = 
     max,
     variance
   }
+}
+
+export const parseGcode = (line: string) => {
+  const [, command, args = ''] = line
+    .trim()
+    .split(';', 2)[0]
+    .split(/^([a-z][0-9]+)\s+/i)
+
+  if (!/^(G|M)\d+$/.test(command)) {
+    return null
+  }
+
+  const argMap: any = {}
+
+  for (const [, key, value] of args.matchAll(/([a-z])(\d+(?:\.\d*)?)/ig)) {
+    argMap[key.toLowerCase()] = Number(value)
+  }
+
+  return {
+    command: command.toUpperCase(),
+    args: argMap
+  }
+}
+
+export const filterObject = (obj: any, keys: string[]) => {
+  const entries = Object
+    .entries(obj)
+    .filter(([key]) => keys.includes(key))
+
+  return Object.fromEntries(entries)
+}
+
+export const blockObserver = (obj: any) => {
+  // eslint-disable-next-line no-prototype-builtins
+  if (obj && !obj.hasOwnProperty('__ob__')) {
+    const Observer = Object.getPrototypeOf(Vue.observable({}).__ob__).constructor
+
+    Object.defineProperty(obj, '__ob__', {
+      value: new Observer({}),
+      enumerable: false,
+      configurable: false,
+      writable: false
+    })
+  }
+
+  return obj
 }

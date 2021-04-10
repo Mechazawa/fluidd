@@ -9,6 +9,7 @@ import { MacrosState } from './macros/types'
 import { DevicePowerState } from './devicePower/types'
 import { HistoryState } from './history/types'
 import { VersionState } from './version/types'
+import { GcodePreviewState } from './gcodePreview/types'
 
 export interface RootState {
   socket?: SocketState;
@@ -22,4 +23,5 @@ export interface RootState {
   devicePower?: DevicePowerState;
   history?: HistoryState;
   version?: VersionState;
+  gcodePreview?: GcodePreviewState;
 }
