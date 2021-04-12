@@ -12,7 +12,7 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
     commit('setReset')
   },
 
-  async loadGcode ({ commit }, gcode: string) {
+  async loadGcode ({ commit, getters }, gcode: string) {
     const moves: Move[] = []
 
     for (const line of gcode.split('\n')) {
@@ -32,13 +32,14 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
 
         moves.push(move)
       } else if (/G[2-3]$/i.test(command)) {
-        const move: ArcMove = filterObject(args, [
-          'x', 'y', 'z', 'e',
-          'i', 'j', 'r'
-        ])
-
-        move.direction = command === 'G2'
-          ? Rotation.Clockwise : Rotation.CounterClockwise
+        const move: ArcMove = {
+          ...filterObject(args, [
+            'x', 'y', 'z', 'e',
+            'i', 'j', 'r'
+          ]),
+          direction: command === 'G2'
+            ? Rotation.Clockwise : Rotation.CounterClockwise
+        }
 
         moves.push(move)
       }
@@ -48,5 +49,7 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
     consola.debug('First 1000 moves', moves.slice(0, 1000))
 
     commit('setMoves', moves)
+
+    consola.debug('path 0.2', getters.getExtrusionPath(0.2))
   }
 }
