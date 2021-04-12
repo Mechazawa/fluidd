@@ -1,7 +1,6 @@
 import { GetterTree } from 'vuex'
 import { GcodePreviewState, Move } from './types'
 import { RootState } from '../types'
-import { binarySearch } from '@/store/helpers'
 
 export const getters: GetterTree<GcodePreviewState, RootState> = {
   /**

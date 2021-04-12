@@ -20,11 +20,13 @@
       :value="currentLayer"
       :min="1"
       :max="layerCount"
-      :disabled="!layerCount"
+      :disabled="layerCount === 0"
       @input="currentLayer = $event">
     </app-slider>
-    <svg v-if="layerCount > 0" viewBox="0 0 200 200">
-      <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.4" :d="svgPath"/>
+    <svg viewBox="0 0 200 200" width="50%" height="50%">
+      <g ref="svgGroup">
+        <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.4" :d="svgPath"/>
+      </g>
     </svg>
     <app-btn color="secondary" text @click="reset">Reset</app-btn>
 
@@ -35,6 +37,7 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import StateMixin from '@/mixins/state'
 import FilesMixin from '@/mixins/files'
+import panzoom from 'panzoom'
 
 @Component({})
 export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
@@ -44,7 +47,9 @@ export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
   })
   enabled!: boolean
 
-  currentLayer = 0
+  panzoom: PanZoom
+
+  currentLayer = 1
 
   get currentFile () {
     return this.$store.state.printer.printer.print_stats.filename
@@ -55,6 +60,10 @@ export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
   }
 
   get svgPath () {
+    if (this.layerCount === 0) {
+      return 'M 0,0 L 200,200 M 200,0 L 0,200'
+    }
+
     const layerNr = Math.max(this.currentLayer - 1, 0)
     const layer = this.$store.getters['gcodePreview/getLayers'][layerNr]
 
@@ -64,13 +73,25 @@ export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
   async loadFile () {
     const file = await this.getFile(this.currentFile, 'gcodes', 0)
 
+    this.reset()
+
     this.$store.dispatch('gcodePreview/loadGcode', file.data)
 
-    this.currentLayer = 0
+    this.currentLayer = 1
+  }
+
+  mounted () {
+    this.panzoom = panzoom(this.$refs.svgGroup, {
+      maxZoom: 20,
+      minZoom: 0.1,
+      bounds: true,
+      boundsPadding: 0.2
+    })
   }
 
   reset () {
     this.$store.dispatch('gcodePreview/reset')
+    this.panzoom.zoomTo(0, 0, 1)
   }
 }
 </script>
