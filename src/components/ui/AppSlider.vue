@@ -108,6 +108,9 @@ export default class AppSlider extends Mixins(StateMixin) {
   public disabled!: boolean
 
   @Prop({ type: Boolean, default: false })
+  public instant!: boolean
+
+  @Prop({ type: Boolean, default: false })
   public loading!: boolean
 
   @Prop({ type: Number, default: 0 })
@@ -125,6 +128,13 @@ export default class AppSlider extends Mixins(StateMixin) {
   @Watch('value')
   onValueChange (val: number, oldVal: number) {
     if (val !== oldVal) this.newValue = val
+  }
+
+  @Watch('newValue')
+  onNewValueChange (val: number) {
+    if (this.valid) {
+      this.$emit('input', val)
+    }
   }
 
   // TODO: Figure out a better solution here.

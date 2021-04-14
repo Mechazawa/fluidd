@@ -13,22 +13,32 @@
       <span class="font-weight-light">{{ $t('app.general.title.gcode_preview') }}</span>
     </template>
 
-    <app-btn color="primary" text @click="loadFile">Load {{ currentFile }}</app-btn>
-    <p>{{ layerCount }} Layers</p>
-    <app-slider
-      label="Layer nr"
-      :value="currentLayer"
-      :min="1"
-      :max="layerCount"
-      :disabled="layerCount === 0"
-      @input="currentLayer = $event">
-    </app-slider>
-    <svg viewBox="0 0 200 200" width="50%" height="50%">
-      <g ref="svgGroup">
-        <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.4" :d="svgPath"/>
-      </g>
-    </svg>
-    <app-btn color="secondary" text @click="reset">Reset</app-btn>
+    <v-card-text>
+      <v-row>
+        <v-col>
+          <app-slider
+            label="Layer nr"
+            :value="currentLayer"
+            :min="1"
+            :max="layerCount"
+            :disabled="layerCount === 0"
+            instant
+            input-md
+            @input="currentLayer = $event">
+          </app-slider>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="8">
+          <gcode-preview width="100%"  :layer="currentLayer" :enabled="layerCount > 0"></gcode-preview>
+        </v-col>
+        <v-col cols="4">
+          <app-btn color="primary" text @click="loadFile">Load {{ currentFile }}</app-btn>
+          <app-btn color="secondary" text @click="reset">Reset</app-btn>
+          <p>{{ layerCount }} Layers</p>
+        </v-col>
+      </v-row>
+    </v-card-text>
 
   </collapsable-card>
 </template>
@@ -37,9 +47,11 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import StateMixin from '@/mixins/state'
 import FilesMixin from '@/mixins/files'
-import panzoom from 'panzoom'
+import GcodePreview from './GcodePreview.vue'
 
-@Component({})
+@Component({
+  components: { GcodePreview }
+})
 export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
   @Prop({
     type: Boolean,
@@ -47,27 +59,14 @@ export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
   })
   enabled!: boolean
 
-  panzoom: PanZoom
-
   currentLayer = 1
 
   get currentFile () {
-    return this.$store.state.printer.printer.print_stats.filename
+    return this.$store.state.printer.printer.print_stats.filename || 'CE3_-Gardena_to_HDMI.gcode'
   }
 
   get layerCount () {
     return this.$store.getters['gcodePreview/getLayerCount']
-  }
-
-  get svgPath () {
-    if (this.layerCount === 0) {
-      return 'M 0,0 L 200,200 M 200,0 L 0,200'
-    }
-
-    const layerNr = Math.max(this.currentLayer - 1, 0)
-    const layer = this.$store.getters['gcodePreview/getLayers'][layerNr]
-
-    return this.$store.getters['gcodePreview/getExtrusionPath'](layer)
   }
 
   async loadFile () {
@@ -80,18 +79,8 @@ export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
     this.currentLayer = 1
   }
 
-  mounted () {
-    this.panzoom = panzoom(this.$refs.svgGroup, {
-      maxZoom: 20,
-      minZoom: 0.1,
-      bounds: true,
-      boundsPadding: 0.2
-    })
-  }
-
   reset () {
     this.$store.dispatch('gcodePreview/reset')
-    this.panzoom.zoomTo(0, 0, 1)
   }
 }
 </script>

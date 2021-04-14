@@ -30,7 +30,7 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
           'x', 'y', 'z', 'e'
         ])
 
-        moves.push(move)
+        moves.push(Object.freeze(move))
       } else if (/G[2-3]$/i.test(command)) {
         const move: ArcMove = {
           ...filterObject(args, [
@@ -41,7 +41,7 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
             ? Rotation.Clockwise : Rotation.CounterClockwise
         }
 
-        moves.push(move)
+        moves.push(Object.freeze(move))
       }
     }
 

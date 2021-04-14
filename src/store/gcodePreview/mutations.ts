@@ -2,7 +2,6 @@ import { MutationTree } from 'vuex'
 import { defaultState } from './'
 import { GcodePreviewState } from './types'
 import Vue from 'vue'
-import { blockObserver } from '@/store/helpers'
 
 export const mutations: MutationTree<GcodePreviewState> = {
   /**
@@ -14,7 +13,7 @@ export const mutations: MutationTree<GcodePreviewState> = {
 
   setMoves (state, payload) {
     console.log('setMoves start')
-    Vue.set(state, 'moves', blockObserver(payload))
+    Vue.set(state, 'moves', Object.freeze(payload))
     console.log('setMoves done')
   }
 }

@@ -321,24 +321,6 @@ export const filterObject = (obj: any, keys: string[]) => {
   return Object.fromEntries(entries)
 }
 
-export const blockObserver = (obj: any) => {
-  // eslint-disable-next-line no-prototype-builtins
-  if (obj && !obj.hasOwnProperty('__ob__')) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
-    const Observer = Object.getPrototypeOf(Vue.observable({}).__ob__).constructor
-
-    Object.defineProperty(obj, '__ob__', {
-      value: new Observer({}),
-      enumerable: false,
-      configurable: false,
-      writable: false
-    })
-  }
-
-  return obj
-}
-
 export const binarySearch = (arr: any[], comp: Function): number => {
   let index = Math.floor(arr.length / 2)
   let topBound = arr.length - 1
