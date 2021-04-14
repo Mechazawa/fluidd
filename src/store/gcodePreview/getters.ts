@@ -70,9 +70,8 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     return output
   },
 
-  getExtrusionPath: (state, getters) => (layer: number): string => {
+  getExtrusionPath: (state, getters) => (layer: number): { moves: string; extrusions: string } => {
     let index = getters.getLayerStart(layer)
-    let path = ''
     const moves = getters.getMoves
     const toolhead = {
       x: NaN,
@@ -81,7 +80,7 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     }
 
     // Prime toolhead
-    for (; index >= 0 && !Number.isNaN(toolhead.x) && Number.isNaN(toolhead.y); index--) {
+    for (; index >= 0 && (Number.isNaN(toolhead.x) || Number.isNaN(toolhead.y)); index--) {
       const move = moves[index]
 
       if (Number.isNaN(toolhead.x) && move.x !== undefined) {
@@ -93,10 +92,19 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
       }
     }
 
+    toolhead.x = Number.isNaN(toolhead.x) ? 0 : toolhead.x
+    toolhead.y = Number.isNaN(toolhead.y) ? 0 : toolhead.y
+
+    const path = {
+      extrusions: '',
+      moves: `M ${toolhead.x},${toolhead.y}`
+    }
+
+    let traveling = true
+
     for (; index < moves.length; index++) {
       const move = moves[index]
       const z = (move.z ?? toolhead.z)
-      let traveling = true
 
       if (move.e > 0) {
         if (z > layer) {
@@ -104,15 +112,20 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
         }
 
         if (traveling) {
-          path += `M ${toolhead.x},${toolhead.y} `
+          path.extrusions += `M ${toolhead.x},${toolhead.y} `
           traveling = false
         }
 
         Object.assign(toolhead, move)
-        path += `L ${toolhead.x},${toolhead.y} `
+        path.extrusions += `L ${toolhead.x},${toolhead.y} `
       } else {
-        traveling = true
+        if (!traveling) {
+          path.moves += `M ${toolhead.x},${toolhead.y} `
+          traveling = true
+        }
+
         Object.assign(toolhead, move)
+        path.moves += `L ${toolhead.x},${toolhead.y} `
       }
     }
 

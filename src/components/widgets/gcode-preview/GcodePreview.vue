@@ -2,8 +2,10 @@
   <div style="border: 1px solid black; overflow: hidden;">
     <svg :viewBox="svgViewBox" :height="height" :width="width" ref="svg">
       <g>
-        <path style="will-change: d" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.3"
-              :d="svgPath"/>
+        <path style="will-change: d" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.3"
+              :d="svgPath.extrusions"/>
+        <path style="will-change: d" stroke="gray" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.1"
+              :d="svgPath.moves"/>
       </g>
     </svg>
   </div>
@@ -69,7 +71,7 @@ export default class GcodePreview extends Mixins(StateMixin) {
   mounted () {
     this.panzoom = panzoom(this.$refs.svg as SVGElement, {
       maxZoom: 20,
-      minZoom: 0.95,
+      minZoom: 0.98,
       bounds: true,
       boundsPadding: 0.9
     })

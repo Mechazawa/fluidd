@@ -12,8 +12,6 @@ export const mutations: MutationTree<GcodePreviewState> = {
   },
 
   setMoves (state, payload) {
-    console.log('setMoves start')
     Vue.set(state, 'moves', Object.freeze(payload))
-    console.log('setMoves done')
   }
 }

@@ -2,7 +2,6 @@ import { ActionTree } from 'vuex'
 import { ArcMove, GcodePreviewState, Move, Rotation } from './types'
 import { RootState } from '../types'
 import { filterObject, parseGcode } from '@/store/helpers'
-import consola from 'consola'
 
 export const actions: ActionTree<GcodePreviewState, RootState> = {
   /**
@@ -45,11 +44,6 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
       }
     }
 
-    consola.debug('Loaded moves', moves.length)
-    consola.debug('First 1000 moves', moves.slice(0, 1000))
-
     commit('setMoves', moves)
-
-    consola.debug('path 0.2', getters.getExtrusionPath(0.2))
   }
 }
