@@ -15,8 +15,6 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     let z = -1
     let pushed = true
 
-    console.log('getLayers start for', getters.getMoves.length, 'moves')
-
     for (const move of getters.getMoves) {
       if (move.z >= 0) {
         z = move.z
@@ -27,8 +25,6 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
       }
     }
 
-    console.log('getLayers done', layers)
-
     // Convert to array and sort ascending
     return Array
       .from(layers)
@@ -36,8 +32,6 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
   },
 
   getLayerCount: (state, getters): number => {
-    console.log('getLayerCount', getters.getLayers.length)
-
     return getters.getLayers.length
   },
 

@@ -33,7 +33,6 @@
           <gcode-preview width="100%"  :layer="currentLayer" :enabled="layerCount > 0"></gcode-preview>
         </v-col>
         <v-col cols="4">
-          <app-btn color="primary" text @click="loadFile">Load {{ currentFile }}</app-btn>
           <app-btn color="secondary" text @click="reset">Reset</app-btn>
           <p>{{ layerCount }} Layers</p>
         </v-col>
@@ -44,7 +43,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import StateMixin from '@/mixins/state'
 import FilesMixin from '@/mixins/files'
 import GcodePreview from './GcodePreview.vue'
@@ -61,22 +60,13 @@ export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
 
   currentLayer = 1
 
-  get currentFile () {
-    return this.$store.state.printer.printer.print_stats.filename || 'CE3_-Gardena_to_HDMI.gcode'
+  @Watch('layerCount')
+  onLayerCountChanged () {
+    this.currentLayer = 1
   }
 
   get layerCount () {
     return this.$store.getters['gcodePreview/getLayerCount']
-  }
-
-  async loadFile () {
-    const file = await this.getFile(this.currentFile, 'gcodes', 0)
-
-    this.reset()
-
-    this.$store.dispatch('gcodePreview/loadGcode', file.data)
-
-    this.currentLayer = 1
   }
 
   reset () {

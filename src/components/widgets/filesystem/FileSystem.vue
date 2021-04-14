@@ -51,6 +51,7 @@
       @rename="handleRenameDialog"
       @remove="handleRemove"
       @download="handleDownload"
+      @preview-gcode="handlePreviewGcode"
       @preheat="handlePreheat"
     >
     </file-system-context-menu>
@@ -519,6 +520,12 @@ export default class FileSystem extends Mixins(StateMixin, FilesMixin, ServicesM
 
   handleDownload (file: AppFile | AppFileWithMeta) {
     this.downloadFile(file.filename, this.currentPath)
+  }
+
+  async handlePreviewGcode (file: AppFile | AppFileWithMeta) {
+    const { data } = await this.getFile(file.filename, this.currentPath, file.size)
+
+    this.$store.dispatch('gcodePreview/loadGcode', data)
   }
 
   handlePreheat (file: AppFileWithMeta) {

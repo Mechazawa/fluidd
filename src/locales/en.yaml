@@ -107,6 +107,7 @@ app:
       close: Close
       config_reference: Config Reference
       download: Download
+      preview-gcode: Preview Gcode
       edit: Edit
       extrude: Extrude
       load_all: Load all
