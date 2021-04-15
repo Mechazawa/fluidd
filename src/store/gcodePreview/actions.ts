@@ -1,5 +1,5 @@
 import { ActionTree } from 'vuex'
-import { GcodePreviewState, Move, PositioningMode, Rotation } from './types'
+import { ArcMove, GcodePreviewState, LinearMove, Move, PositioningMode, Rotation } from './types'
 import { RootState } from '../types'
 import { filterObject, parseGcode } from '@/store/helpers'
 import { AppFile } from '@/store/files/types'
@@ -17,7 +17,7 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
 
     let extrusionMode = PositioningMode.Relative
     let positioningMode = PositioningMode.Absolute
-    const toolhead: Move = {
+    const toolhead = {
       x: 0,
       y: 0,
       z: 0,
@@ -39,7 +39,7 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
       if (/^G[0-1]$/i.test(command)) {
         move = filterObject(args, [
           'x', 'y', 'z', 'e'
-        ])
+        ]) as LinearMove
       } else if (/^G[2-3]$/i.test(command)) {
         move = {
           ...filterObject(args, [
@@ -48,7 +48,7 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
           ]),
           direction: command === 'G2'
             ? Rotation.Clockwise : Rotation.CounterClockwise
-        }
+        } as ArcMove
       } else if (command === 'M82') {
         extrusionMode = PositioningMode.Absolute
         toolhead.e = 0
@@ -65,7 +65,7 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
 
       if (move) {
         if (extrusionMode === PositioningMode.Absolute && move.e !== undefined) {
-          const extrusionLength = move.e - (toolhead.e ?? 0)
+          const extrusionLength = move.e - toolhead.e
 
           toolhead.e = move.e
           move.e = extrusionLength
@@ -73,15 +73,15 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
 
         if (positioningMode === PositioningMode.Relative) {
           if (move.x !== undefined) {
-            move.x += toolhead.x ?? 0
+            move.x += toolhead.x
           }
 
           if (move.y !== undefined) {
-            move.y += toolhead.y ?? 0
+            move.y += toolhead.y
           }
 
           if (move.z !== undefined) {
-            move.z += toolhead.z ?? 0
+            move.z += toolhead.z
           }
         }
 
