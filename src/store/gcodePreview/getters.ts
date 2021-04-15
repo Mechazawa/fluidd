@@ -1,6 +1,7 @@
 import { GetterTree } from 'vuex'
 import { GcodePreviewState, Move } from './types'
 import { RootState } from '../types'
+import { AppFile } from '@/store/files/types'
 
 export const getters: GetterTree<GcodePreviewState, RootState> = {
   /**
@@ -8,6 +9,10 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
    */
   getMoves: (state): Move[] => {
     return state.moves
+  },
+
+  getFile: (state): AppFile | undefined => {
+    return state.file
   },
 
   getLayers: (state, getters): number[] => {

@@ -2,6 +2,7 @@ import { ActionTree } from 'vuex'
 import { ArcMove, GcodePreviewState, Move, Rotation } from './types'
 import { RootState } from '../types'
 import { filterObject, parseGcode } from '@/store/helpers'
+import { AppFile } from '@/store/files/types'
 
 export const actions: ActionTree<GcodePreviewState, RootState> = {
   /**
@@ -11,10 +12,10 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
     commit('setReset')
   },
 
-  async loadGcode ({ commit, getters }, gcode: string) {
+  async loadGcode ({ commit }, payload: { file: AppFile; gcode: string }) {
     const moves: Move[] = []
 
-    for (const line of gcode.split('\n')) {
+    for (const line of payload.gcode.split('\n')) {
       const {
         command,
         args
@@ -44,6 +45,7 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
       }
     }
 
+    commit('setFile', payload.file)
     commit('setMoves', moves)
   }
 }

@@ -1,5 +1,8 @@
+import { AppFile } from '@/store/files/types'
+
 export interface GcodePreviewState {
   moves: Move[];
+  file?: AppFile;
 }
 
 export interface LinearMove {

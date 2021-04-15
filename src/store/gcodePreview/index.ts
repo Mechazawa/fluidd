@@ -10,7 +10,8 @@ import { RootState } from '../types'
  */
 export const defaultState = (): GcodePreviewState => {
   return {
-    moves: []
+    moves: [],
+    file: undefined
   }
 }
 
