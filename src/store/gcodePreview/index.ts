@@ -11,7 +11,15 @@ import { RootState } from '../types'
 export const defaultState = (): GcodePreviewState => {
   return {
     moves: [],
-    file: undefined
+    file: undefined,
+
+    viewer: {
+      showNextLayer: false,
+      showPreviousLayer: false,
+      showMoves: true,
+      showExtrusions: true,
+      showRetractions: true
+    }
   }
 }
 

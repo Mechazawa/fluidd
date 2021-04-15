@@ -1,7 +1,8 @@
 import { GetterTree } from 'vuex'
-import { GcodePreviewState, Move } from './types'
+import { GcodePreviewState, LayerPaths, Move } from './types'
 import { RootState } from '../types'
 import { AppFile } from '@/store/files/types'
+import consola from 'consola'
 
 export const getters: GetterTree<GcodePreviewState, RootState> = {
   /**
@@ -13,6 +14,10 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
 
   getFile: (state): AppFile | undefined => {
     return state.file
+  },
+
+  getViewerOption: (state) => (key: string): any => {
+    return (state.viewer as any)[key]
   },
 
   getLayers: (state, getters): number[] => {
@@ -75,7 +80,7 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     return output
   },
 
-  getExtrusionPath: (state, getters) => (layer: number): { moves: string; extrusions: string } => {
+  getLayerPaths: (state, getters) => (layer: number): LayerPaths => {
     let index = getters.getLayerStart(layer)
     const moves = getters.getMoves
     const toolhead = {
@@ -100,9 +105,10 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     toolhead.x = Number.isNaN(toolhead.x) ? 0 : toolhead.x
     toolhead.y = Number.isNaN(toolhead.y) ? 0 : toolhead.y
 
-    const path = {
+    const path: LayerPaths = {
       extrusions: '',
-      moves: `M ${toolhead.x},${toolhead.y}`
+      moves: `M ${toolhead.x},${toolhead.y}`,
+      retractions: []
     }
 
     let traveling = true
@@ -129,9 +135,22 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
           traveling = true
         }
 
+        if (move.e < 0) {
+          path.retractions.push({
+            x: toolhead.x,
+            y: toolhead.y
+          })
+        }
+
         Object.assign(toolhead, move)
         path.moves += `L ${toolhead.x},${toolhead.y} `
       }
+    }
+
+    if (path.retractions.length > 0) {
+      consola.debug('retractions', layer, path.retractions)
+    } else {
+      consola.debug('no retractions', layer)
     }
 
     return path

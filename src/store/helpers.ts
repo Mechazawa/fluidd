@@ -303,7 +303,7 @@ export const parseGcode = (line: string) => {
 
   const argMap: any = {}
 
-  for (const [, key, value] of args.matchAll(/([a-z])(\d+(?:\.\d*)?)/ig)) {
+  for (const [, key, value] of args.matchAll(/([a-z])[ \t]*(-?\d+(?:\.\d+)?)/ig)) {
     argMap[key.toLowerCase()] = Number(value)
   }
 

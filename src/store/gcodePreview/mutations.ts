@@ -18,5 +18,13 @@ export const mutations: MutationTree<GcodePreviewState> = {
 
   setFile (state, file: AppFile) {
     state.file = file
+  },
+
+  setViewerState (state, payload: any) {
+    for (const key of Object.keys(state.viewer)) {
+      if (Object.prototype.hasOwnProperty.call(payload, key)) {
+        Vue.set(state.viewer, key, payload[key])
+      }
+    }
   }
 }

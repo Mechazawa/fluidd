@@ -30,11 +30,12 @@
       </v-row>
       <v-row>
         <v-col cols="8">
-          <gcode-preview width="100%"  :layer="currentLayer" :enabled="layerCount > 0"></gcode-preview>
+          <gcode-preview width="100%" :layer="currentLayer" :enabled="layerCount > 0"></gcode-preview>
         </v-col>
         <v-col cols="4">
           <app-btn color="secondary" text @click="reset">Reset</app-btn>
           <p>{{ layerCount }} Layers</p>
+          <GcodePreviewControls/>
         </v-col>
       </v-row>
     </v-card-text>
@@ -47,9 +48,13 @@ import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import StateMixin from '@/mixins/state'
 import FilesMixin from '@/mixins/files'
 import GcodePreview from './GcodePreview.vue'
+import GcodePreviewControls from '@/components/widgets/gcode-preview/GcodePreviewControls.vue'
 
 @Component({
-  components: { GcodePreview }
+  components: {
+    GcodePreview,
+    GcodePreviewControls
+  }
 })
 export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
   @Prop({
