@@ -1,5 +1,5 @@
 import { ActionTree } from 'vuex'
-import { ExtrusionMode, GcodePreviewState, Move, Rotation } from './types'
+import { GcodePreviewState, Move, PositioningMode, Rotation } from './types'
 import { RootState } from '../types'
 import { filterObject, parseGcode } from '@/store/helpers'
 import { AppFile } from '@/store/files/types'
@@ -15,8 +15,14 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
   async loadGcode ({ commit }, payload: { file: AppFile; gcode: string }) {
     const moves: Move[] = []
 
-    let extrusionMode = ExtrusionMode.Relative
-    let lastExtrusion = 0
+    let extrusionMode = PositioningMode.Relative
+    let positioningMode = PositioningMode.Absolute
+    const toolhead: Move = {
+      x: 0,
+      y: 0,
+      z: 0,
+      e: 0
+    }
 
     for (const line of payload.gcode.split('\n')) {
       const {
@@ -43,24 +49,45 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
           direction: command === 'G2'
             ? Rotation.Clockwise : Rotation.CounterClockwise
         }
-      } else if (command === 'M82' || command === 'G90') {
-        extrusionMode = ExtrusionMode.Absolute
-        lastExtrusion = 0
-      } else if (command === 'M83' || command === 'G91') {
-        extrusionMode = ExtrusionMode.Relative
+      } else if (command === 'M82') {
+        extrusionMode = PositioningMode.Absolute
+        toolhead.e = 0
+      } else if (command === 'M83') {
+        extrusionMode = PositioningMode.Relative
       } else if (command === 'G90') {
-        // todo absolute positioning
+        extrusionMode = PositioningMode.Absolute
+        positioningMode = PositioningMode.Absolute
+        toolhead.e = 0
       } else if (command === 'G91') {
-        // todo relative positioning
+        extrusionMode = PositioningMode.Relative
+        positioningMode = PositioningMode.Relative
       }
 
       if (move) {
-        if (extrusionMode === ExtrusionMode.Absolute && move.e !== undefined) {
-          const extrusionLength = move.e - lastExtrusion
+        if (extrusionMode === PositioningMode.Absolute && move.e !== undefined) {
+          const extrusionLength = move.e - (toolhead.e ?? 0)
 
-          lastExtrusion = move.e
+          toolhead.e = move.e
           move.e = extrusionLength
         }
+
+        if (positioningMode === PositioningMode.Relative) {
+          if (move.x !== undefined) {
+            move.x += toolhead.x ?? 0
+          }
+
+          if (move.y !== undefined) {
+            move.y += toolhead.y ?? 0
+          }
+
+          if (move.z !== undefined) {
+            move.z += toolhead.z ?? 0
+          }
+        }
+
+        toolhead.x = move.x ?? toolhead.x
+        toolhead.y = move.y ?? toolhead.y
+        toolhead.z = move.z ?? toolhead.z
 
         moves.push(Object.freeze(move))
       }

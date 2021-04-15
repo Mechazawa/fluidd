@@ -3,24 +3,30 @@
     <svg :viewBox="svgViewBox" :height="height" :width="width" ref="svg"
          xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs>
-        <svg id="retraction" width="2" height="2" viewBox="0 0 10 10">
+        <svg id="retraction" :width="retractionRectSize" :height="retractionRectSize" viewBox="0 0 10 10">
           <path d="M 10,10 L 5,0 L 0,10 Z" fill="red" fill-opacity="0.9"/>
         </svg>
       </defs>
       <g id="previousLayer" class="layer" v-if="getOption('showPreviousLayer')">
-        <path stroke="lightgrey" stroke-width="0.3" stroke-opacity="0.6" :d="svgPathPrevious.extrusions"/>
+        <path stroke="lightgrey" stroke-width="0.3" stroke-opacity="0.6"
+              :d="svgPathPrevious.extrusions"/>
       </g>
       <g id="currentLayer" class="layer">
-        <path :d="svgPathCurrent.extrusions" stroke="white" stroke-width="0.3" v-if="getOption('showExtrusions')"/>
-        <path :d="svgPathCurrent.moves" stroke="gray" stroke-width="0.1" v-if="getOption('showMoves')"/>
+        <path :d="svgPathCurrent.extrusions" v-if="getOption('showExtrusions')"
+              :stroke="themeIsDark ? 'white' : 'black'" stroke-width="0.3"/>
+        <path :d="svgPathCurrent.moves" v-if="getOption('showMoves')"
+              stroke="gray" stroke-width="0.1"/>
 
         <g id="retractions" v-if="getOption('showRetractions') && svgPathCurrent.retractions.length > 0">
-          <use v-for="({x, y}, index) of svgPathCurrent.retractions" :key="`retraction-${index + 1}`"
-               xlink:href="#retraction" :x="x - 1" :y="y - 2"/>
+          <use v-for="({x, y}, index) of svgPathCurrent.retractions"
+               :key="`retraction-${index + 1}`" xlink:href="#retraction"
+               :x="x - (retractionRectSize / 2)" :y="y - retractionRectSize"/>
+               <!-- Calculate anchor to be bottom-center of the triangle -->
         </g>
       </g>
       <g id="nextLayer" class="layer" v-if="getOption('showNextLayer')">
-        <path stroke="lightgrey" stroke-width="0.3" stroke-opacity="0.6" :d="svgPathNext.extrusions"/>
+        <path stroke="lightgrey" stroke-width="0.3" stroke-opacity="0.6"
+              :d="svgPathNext.extrusions"/>
       </g>
     </svg>
   </div>
@@ -59,6 +65,12 @@ export default class GcodePreview extends Mixins(StateMixin) {
   layer!: number
 
   panzoom?: PanZoom
+
+  retractionRectSize = 1
+
+  get themeIsDark (): boolean {
+    return this.$store.state.config.uiSettings.theme.isDark
+  }
 
   get svgViewBox () {
     const {

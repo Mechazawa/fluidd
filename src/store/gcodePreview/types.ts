@@ -45,7 +45,7 @@ export interface Point {
   y: number;
 }
 
-export enum ExtrusionMode {
+export enum PositioningMode {
   Relative = 'relative',
   Absolute = 'absolute'
 }

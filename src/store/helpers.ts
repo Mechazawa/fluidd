@@ -11,7 +11,6 @@ import {
 import { SocketActions } from '@/socketActions'
 import store from '@/store'
 import { KlipperMesh, ProcessedMesh } from './mesh/types'
-import Vue from 'vue'
 
 export const isOfType = <T> (
   varToBeChecked: any,
