@@ -1,5 +1,6 @@
 <template>
   <div>
+    <gcode-preview-control-checkbox name="followProgress" label="Follow progress"/>
     <gcode-preview-control-checkbox name="showNextLayer" label="Show next layer"/>
     <gcode-preview-control-checkbox name="showPreviousLayer" label="Show previous layer"/>
     <gcode-preview-control-checkbox name="showMoves" label="Show moves"/>

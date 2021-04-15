@@ -21,7 +21,7 @@
           <use v-for="({x, y}, index) of svgPathCurrent.retractions"
                :key="`retraction-${index + 1}`" xlink:href="#retraction"
                :x="x - (retractionRectSize / 2)" :y="y - retractionRectSize"/>
-               <!-- Calculate anchor to be bottom-center of the triangle -->
+          <!-- Calculate anchor to be bottom-center of the triangle -->
         </g>
       </g>
       <g id="nextLayer" class="layer" v-if="getOption('showNextLayer')">
@@ -72,6 +72,10 @@ export default class GcodePreview extends Mixins(StateMixin) {
     return this.$store.state.config.uiSettings.theme.isDark
   }
 
+  get filePosition (): number {
+    return this.$store.state.printer.printer.virtual_sdcard.file_position
+  }
+
   get svgViewBox () {
     const {
       stepper_x: stepperX,
@@ -89,7 +93,11 @@ export default class GcodePreview extends Mixins(StateMixin) {
     return {
       extrusions: '',
       moves: '',
-      retractions: []
+      retractions: [],
+      toolhead: {
+        x: 0,
+        y: 0
+      }
     }
   }
 
@@ -100,6 +108,10 @@ export default class GcodePreview extends Mixins(StateMixin) {
 
     const layerNr = Math.max(this.layer, 1)
     const layer = this.$store.getters['gcodePreview/getLayers'][layerNr - 1]
+
+    if (this.getOption('followProgress')) {
+      return this.$store.getters['gcodePreview/getLayerPaths'](layer, this.filePosition)
+    }
 
     return this.$store.getters['gcodePreview/getLayerPaths'](layer)
   }

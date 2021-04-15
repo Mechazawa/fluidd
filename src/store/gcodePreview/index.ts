@@ -18,7 +18,8 @@ export const defaultState = (): GcodePreviewState => {
       showPreviousLayer: false,
       showMoves: true,
       showExtrusions: true,
-      showRetractions: true
+      showRetractions: true,
+      followProgress: false
     }
   }
 }

@@ -70,8 +70,30 @@ export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
     this.currentLayer = 1
   }
 
+  @Watch('followProgress')
+  onFollowProgressChanged () {
+    if (this.followProgress) {
+      this.currentLayer = this.$store.getters['gcodePreview/getCurrentLayer']
+    }
+  }
+
+  @Watch('currentLayer')
+  onCurrentLayerChanged () {
+    if (this.followProgress && this.currentLayer !== this.$store.getters['gcodePreview/getCurrentLayer']) {
+      this.followProgress = false
+    }
+  }
+
   get layerCount () {
     return this.$store.getters['gcodePreview/getLayerCount']
+  }
+
+  get followProgress () {
+    return this.$store.getters['gcodePreview/getViewerOption']('followProgress')
+  }
+
+  set followProgress (value) {
+    this.$store.commit('gcodePreview/setViewerState', { followProgress: value })
   }
 
   reset () {

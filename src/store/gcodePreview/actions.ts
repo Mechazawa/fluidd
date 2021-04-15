@@ -21,7 +21,8 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
       x: 0,
       y: 0,
       z: 0,
-      e: 0
+      e: 0,
+      filePosition: 0
     }
 
     for (const line of payload.gcode.split('\n')) {
@@ -89,8 +90,12 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
         toolhead.y = move.y ?? toolhead.y
         toolhead.z = move.z ?? toolhead.z
 
+        move.filePosition = toolhead.filePosition
+
         moves.push(Object.freeze(move))
       }
+
+      toolhead.filePosition += line.length + 1
     }
 
     commit('setFile', payload.file)

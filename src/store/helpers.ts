@@ -320,7 +320,11 @@ export const filterObject = (obj: any, keys: string[]) => {
   return Object.fromEntries(entries)
 }
 
-export const binarySearch = (arr: any[], comp: Function): number => {
+export const binarySearch = (arr: any[], comp: Function, approx = false): number => {
+  if (arr.length <= 1) {
+    return 0
+  }
+
   let index = Math.floor(arr.length / 2)
   let topBound = arr.length - 1
   let bottomBound = 0
@@ -330,14 +334,14 @@ export const binarySearch = (arr: any[], comp: Function): number => {
 
     if (result > 0) {
       if (topBound === index) {
-        return -1
+        return approx ? index : -1
       }
 
       bottomBound = index
       index = (topBound - index) / 2 + index
     } else if (result < 0) {
       if (bottomBound === index) {
-        return -1
+        return approx ? index : -1
       }
 
       topBound = index

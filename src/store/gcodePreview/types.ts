@@ -10,6 +10,7 @@ export interface GcodePreviewState {
     showMoves: boolean;
     showExtrusions: boolean;
     showRetractions: boolean;
+    followProgress: boolean;
   };
 }
 
@@ -18,6 +19,8 @@ export interface LinearMove {
   y?: number;
   z?: number;
   e?: number;
+
+  filePosition?: number;
 }
 
 export interface ArcMove extends LinearMove {
@@ -38,6 +41,7 @@ export interface LayerPaths {
   moves: string;
   extrusions: string;
   retractions: Point[];
+  toolhead: Point;
 }
 
 export interface Point {

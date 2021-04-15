@@ -2,7 +2,7 @@ import { GetterTree } from 'vuex'
 import { GcodePreviewState, LayerPaths, Move } from './types'
 import { RootState } from '../types'
 import { AppFile } from '@/store/files/types'
-import consola from 'consola'
+import { binarySearch } from '@/store/helpers'
 
 export const getters: GetterTree<GcodePreviewState, RootState> = {
   /**
@@ -80,7 +80,7 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     return output
   },
 
-  getLayerPaths: (state, getters) => (layer: number): LayerPaths => {
+  getLayerPaths: (state, getters) => (layer: number, filePosition = Infinity): LayerPaths => {
     let index = getters.getLayerStart(layer)
     const moves = getters.getMoves
     const toolhead = {
@@ -108,12 +108,16 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     const path: LayerPaths = {
       extrusions: '',
       moves: `M ${toolhead.x},${toolhead.y}`,
-      retractions: []
+      retractions: [],
+      toolhead: {
+        x: 0,
+        y: 0
+      }
     }
 
     let traveling = true
 
-    for (; index < moves.length; index++) {
+    for (; index < moves.length && moves[index].filePosition <= filePosition; index++) {
       const move = moves[index]
       const z = (move.z ?? toolhead.z)
 
@@ -147,10 +151,9 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
       }
     }
 
-    if (path.retractions.length > 0) {
-      consola.debug('retractions', layer, path.retractions)
-    } else {
-      consola.debug('no retractions', layer)
+    path.toolhead = {
+      x: toolhead.x,
+      y: toolhead.y
     }
 
     return path
@@ -178,5 +181,56 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     }
 
     return -1
+  },
+
+  getCurrentMoveIndex: (state, getters, rootState) => {
+    const filePosition = rootState.printer?.printer.virtual_sdcard.file_position
+
+    return binarySearch(getters.getMoves, (val: Move) => filePosition - (val?.filePosition ?? 0), true)
+  },
+
+  getCurrentLayer: (state, getters) => {
+    const moves = getters.getMoves
+    let extruded = false
+
+    if (moves.length <= 1 || getters.getCurrentMoveIndex <= 0) {
+      return moves[0]?.z ?? 0
+    }
+
+    // Lookback
+    for (let index = getters.getCurrentMoveIndex; index >= 0; index--) {
+      if (moves[index].e !== undefined) {
+        extruded = true
+      }
+
+      if (moves[index].z !== undefined) {
+        if (extruded) {
+          return moves[index].z
+        }
+
+        // extrusion lookahead
+        // nasty
+        for (let index2 = getters.getCurrentMoveIndex; index2 < moves.length && moves[index2].z !== undefined; index++) {
+          if (moves[index2].e !== undefined) {
+            return moves[index].z
+          }
+        }
+
+        break
+      }
+    }
+
+    // Lookahead
+    for (let index = getters.getCurrentMoveIndex; index < moves.length; index++) {
+      if (moves[index].e !== undefined) {
+        extruded = true
+      }
+
+      if (moves[index].z !== undefined && extruded) {
+        return moves[index].z
+      }
+    }
+
+    return 0
   }
 }
