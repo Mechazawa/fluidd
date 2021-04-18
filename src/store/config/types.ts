@@ -112,4 +112,8 @@ export interface GcodePreviewConfig {
   extrusionLineWidth: number;
   moveLineWidth: number;
   retractionIconSize: number;
+  flip: {
+    horizontal: boolean;
+    vertical: boolean;
+  };
 }

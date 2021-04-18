@@ -7,29 +7,31 @@
           <path d="M 10,10 L 5,0 L 0,10 Z" fill="red" fill-opacity="0.9"/>
         </svg>
       </defs>
-      <g id="previousLayer" class="layer" v-if="getOption('showPreviousLayer')">
-        <path stroke="lightgrey" :stroke-width="extrusionLineWidth" stroke-opacity="0.6"
-              :d="svgPathPrevious.extrusions"/>
-      </g>
-      <g id="currentLayer" class="layer">
-        <path :d="svgPathCurrent.extrusions" v-if="getOption('showExtrusions')"
-              :stroke="themeIsDark ? 'white' : 'black'"
-              :stroke-width="extrusionLineWidth"/>
-        <path :d="svgPathCurrent.moves" v-if="getOption('showMoves')"
-              stroke="gray"
-              :stroke-width="moveLineWidth"/>
-
-        <g id="retractions" v-if="getOption('showRetractions') && svgPathCurrent.retractions.length > 0">
-          <use v-for="({x, y}, index) of svgPathCurrent.retractions"
-               :key="`retraction-${index + 1}`" xlink:href="#retraction"
-               :x="x - (retractionIconSize / 2)" :y="y - retractionIconSize"/>
-          <!-- Calculate anchor to be bottom-center of the triangle -->
+      <g :transform="groupTransform">
+        <g id="previousLayer" class="layer" v-if="getOption('showPreviousLayer')">
+          <path stroke="lightgrey" :stroke-width="extrusionLineWidth" stroke-opacity="0.6"
+                :d="svgPathPrevious.extrusions"/>
         </g>
-      </g>
-      <g id="nextLayer" class="layer" v-if="getOption('showNextLayer')">
-        <path stroke="lightgrey" stroke-opacity="0.6"
-              :d="svgPathNext.extrusions"
-              :stroke-width="extrusionLineWidth"/>
+        <g id="currentLayer" class="layer">
+          <path :d="svgPathCurrent.extrusions" v-if="getOption('showExtrusions')"
+                :stroke="themeIsDark ? 'white' : 'black'"
+                :stroke-width="extrusionLineWidth"/>
+          <path :d="svgPathCurrent.moves" v-if="getOption('showMoves')"
+                stroke="gray"
+                :stroke-width="moveLineWidth"/>
+
+          <g id="retractions" v-if="getOption('showRetractions') && svgPathCurrent.retractions.length > 0">
+            <use v-for="({x, y}, index) of svgPathCurrent.retractions"
+                 :key="`retraction-${index + 1}`" xlink:href="#retraction"
+                 :x="x - (retractionIconSize / 2)" :y="y - retractionIconSize"/>
+            <!-- Calculate anchor to be bottom-center of the triangle -->
+          </g>
+        </g>
+        <g id="nextLayer" class="layer" v-if="getOption('showNextLayer')">
+          <path stroke="lightgrey" stroke-opacity="0.6"
+                :d="svgPathNext.extrusions"
+                :stroke-width="extrusionLineWidth"/>
+        </g>
       </g>
     </svg>
   </div>
@@ -87,6 +89,30 @@ export default class GcodePreview extends Mixins(StateMixin) {
 
   get retractionIconSize () {
     return this.$store.state.config.uiSettings.gcodePreview.retractionIconSize
+  }
+
+  get groupTransform () {
+    const {
+      vertical,
+      horizontal
+    } = this.$store.state.config.uiSettings.gcodePreview.flip
+
+    const scale = [
+      horizontal ? -1 : 1,
+      vertical ? -1 : 1
+    ]
+
+    const {
+      stepper_x: stepperX,
+      stepper_y: stepperY
+    } = this.$store.getters['printer/getPrinterSettings']()
+
+    const transform = [
+      horizontal ? -(stepperX.position_max - stepperX.position_min) : 0,
+      vertical ? -(stepperY.position_max - stepperY.position_min) : 0
+    ]
+
+    return `scale(${scale.join()}) translate(${transform.join()})`
   }
 
   get svgViewBox () {
@@ -174,5 +200,13 @@ export default class GcodePreview extends Mixins(StateMixin) {
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.flipX {
+  transform: scaleX(-1)
+}
+
+.flipY {
+  transform: scaleY(-1)
 }
 </style>

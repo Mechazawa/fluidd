@@ -91,7 +91,11 @@ export const defaultState = (): ConfigState => {
       gcodePreview: {
         extrusionLineWidth: 0.3,
         moveLineWidth: 0.1,
-        retractionIconSize: 0.2
+        retractionIconSize: 0.2,
+        flip: {
+          horizontal: false,
+          vertical: true
+        }
       }
     }
   }

@@ -317,6 +317,8 @@ app:
       extrusion_line_width: Extrusion Line Width
       move_line_width: Move Line Width
       retraction_icon_size: Retraction Icon Size
+      flip_horizontal: Horizontal Flip
+      flip_vertical: Vertical Flip
     timer_options:
       duration: Duration only
       duration_description: Similar to a klipper LCD, this only shows duration with no estimates.

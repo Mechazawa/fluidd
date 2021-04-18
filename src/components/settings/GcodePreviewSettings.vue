@@ -19,7 +19,7 @@
         ></v-text-field>
       </app-setting>
 
-      <v-divider />
+      <v-divider/>
 
       <app-setting :title="$t('app.setting.label.move_line_width')">
         <v-text-field
@@ -34,7 +34,7 @@
         ></v-text-field>
       </app-setting>
 
-      <v-divider />
+      <v-divider/>
 
       <app-setting :title="$t('app.setting.label.retraction_icon_size')">
         <v-text-field
@@ -62,6 +62,27 @@
         </app-btn>
       </app-setting>
 
+      <v-divider></v-divider>
+
+      <app-setting :title="$t('app.setting.label.flip_horizontal')">
+        <v-switch
+          @click.native.stop
+          v-model="flipHorizontal"
+          hide-details
+          class="mb-5"
+        ></v-switch>
+      </app-setting>
+
+      <v-divider></v-divider>
+
+      <app-setting :title="$t('app.setting.label.flip_vertical')">
+        <v-switch
+          @click.native.stop
+          v-model="flipVertical"
+          hide-details
+          class="mb-5"
+        ></v-switch>
+      </app-setting>
     </v-card>
   </div>
 </template>
@@ -111,6 +132,30 @@ export default class GcodePreviewSettings extends Vue {
     this.$store.dispatch('config/saveByPath', {
       path: 'uiSettings.gcodePreview.retractionIconSize',
       value: +value,
+      server: true
+    })
+  }
+
+  get flipHorizontal () {
+    return this.$store.state.config.uiSettings.gcodePreview.flip.horizontal
+  }
+
+  set flipHorizontal (value: boolean) {
+    this.$store.dispatch('config/saveByPath', {
+      path: 'uiSettings.gcodePreview.flip.horizontal',
+      value,
+      server: true
+    })
+  }
+
+  get flipVertical () {
+    return this.$store.state.config.uiSettings.gcodePreview.flip.vertical
+  }
+
+  set flipVertical (value: boolean) {
+    this.$store.dispatch('config/saveByPath', {
+      path: 'uiSettings.gcodePreview.flip.vertical',
+      value,
       server: true
     })
   }
