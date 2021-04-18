@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-subheader id="toolhead">{{ $t('app.setting.title.gcode_preview') }}</v-subheader>
+    <v-subheader id="gcodePreview">{{ $t('app.setting.title.gcode_preview') }}</v-subheader>
     <v-card
       :elevation="5"
       dense
@@ -80,32 +80,47 @@ export default class GcodePreviewSettings extends Vue {
   }
 
   get extrusionLineWidth () {
-    // return this.$store.state.config.uiSettings.general.defaultToolheadXYSpeed
+    return this.$store.state.config.uiSettings.gcodePreview.extrusionLineWidth
   }
 
   setExtrusionLineWidth (value: number) {
-    // this.$store.dispatch('config/saveByPath', {
-    //   path: 'uiSettings.general.defaultToolheadXYSpeed',
-    //   value: +value,
-    //   server: true
-    // })
+    this.$store.dispatch('config/saveByPath', {
+      path: 'uiSettings.gcodePreview.extrusionLineWidth',
+      value: +value,
+      server: true
+    })
+  }
+
+  get moveLineWidth () {
+    return this.$store.state.config.uiSettings.gcodePreview.moveLineWidth
+  }
+
+  setMoveLineWidth (value: number) {
+    this.$store.dispatch('config/saveByPath', {
+      path: 'uiSettings.gcodePreview.moveLineWidth',
+      value: +value,
+      server: true
+    })
+  }
+
+  get retractionIconSize () {
+    return this.$store.state.config.uiSettings.gcodePreview.retractionIconSize
+  }
+
+  setRetractionIconSize (value: number) {
+    this.$store.dispatch('config/saveByPath', {
+      path: 'uiSettings.gcodePreview.retractionIconSize',
+      value: +value,
+      server: true
+    })
   }
 
   handleReset () {
-    // let value = defaultState().uiSettings.general
-    // const current = this.$store.state.config.uiSettings.general
-    // value = {
-    //   ...value,
-    //   instanceName: current.instanceName,
-    //   chartVisible: current.chartVisible,
-    //   hideTempWaits: current.hideTempWaits,
-    //   printTimeEstimationsType: current.printTimeEstimationsType
-    // }
-    // this.$store.dispatch('config/saveByPath', {
-    //   path: 'uiSettings.general',
-    //   value,
-    //   server: true
-    // })
+    this.$store.dispatch('config/saveByPath', {
+      path: 'uiSettings.gcodePreview',
+      value: defaultState().uiSettings.gcodePreview,
+      server: true
+    })
   }
 }
 </script>
