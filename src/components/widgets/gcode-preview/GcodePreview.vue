@@ -94,7 +94,7 @@ export default class GcodePreview extends Mixins(StateMixin) {
       stepper_y: stepperY
     } = this.$store.getters['printer/getPrinterSettings']()
 
-    if (!this.enabled || stepperX === undefined || stepperY === undefined) {
+    if (stepperX === undefined || stepperY === undefined) {
       return '0 0 100 100'
     }
 

@@ -76,7 +76,7 @@ import { defaultState } from '@/store/config/index'
 export default class GcodePreviewSettings extends Vue {
   rules = {
     numRequired: (v: number | string) => v !== '' || 'Required',
-    numMin: (v: number) => v >= 0 || 'Min 0'
+    numMin: (v: number) => v > 0 || 'Must be greater than 0'
   }
 
   get extrusionLineWidth () {
