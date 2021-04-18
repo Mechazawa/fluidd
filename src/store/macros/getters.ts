@@ -1,7 +1,6 @@
 import { GetterTree } from 'vuex'
 import { Macro, MacroCategory, MacrosState } from './types'
 import { RootState } from '../types'
-import i18n from '@/plugins/i18n'
 
 export const getters: GetterTree<MacrosState, RootState> = {
 
