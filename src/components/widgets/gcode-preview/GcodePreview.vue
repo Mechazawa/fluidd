@@ -107,6 +107,10 @@ export default class GcodePreview extends Mixins(StateMixin) {
       stepper_y: stepperY
     } = this.$store.getters['printer/getPrinterSettings']()
 
+    if (!stepperX || !stepperY) {
+      return ''
+    }
+
     const transform = [
       horizontal ? -(stepperX.position_max - stepperX.position_min) : 0,
       vertical ? -(stepperY.position_max - stepperY.position_min) : 0

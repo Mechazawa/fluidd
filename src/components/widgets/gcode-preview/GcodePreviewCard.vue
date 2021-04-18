@@ -1,16 +1,17 @@
 <template>
   <collapsable-card
-    :title="$t('app.general.title.gcode_preview')"
-    icon="$console"
+    :title="cardTitle"
+    icon="$cubeScan"
     cardClasses="mb-2 mb-sm-4 d-flex flex-column"
     contentClasses="flex-grow-1 flow-shrink-0"
-    :draggable="true"
+    layout-path="dashboard.gcode-preview-card"
+    draggable
     :enabled="enabled"
     @enabled="$emit('enabled', $event)">
 
     <template v-slot:title>
       <v-icon left>$cubeScan</v-icon>
-      <span class="font-weight-light">{{ $t('app.general.title.gcode_preview') }}</span>
+      <span class="font-weight-light">{{ cardTitle }}</span>
     </template>
 
     <v-card-text>
@@ -50,6 +51,7 @@ import StateMixin from '@/mixins/state'
 import FilesMixin from '@/mixins/files'
 import GcodePreview from './GcodePreview.vue'
 import GcodePreviewControls from '@/components/widgets/gcode-preview/GcodePreviewControls.vue'
+import { AppFile } from '@/store/files/types'
 
 @Component({
   components: {
@@ -83,6 +85,20 @@ export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
     if (this.followProgress && this.currentLayer !== this.$store.getters['gcodePreview/getCurrentLayer']) {
       this.followProgress = false
     }
+  }
+
+  get file (): AppFile | undefined {
+    return this.$store.getters['gcodePreview/getFile']
+  }
+
+  get cardTitle () {
+    const title = this.$t('app.general.title.gcode_preview')
+
+    if (!this.file) {
+      return title
+    }
+
+    return `${title} - ${this.file.name}`
   }
 
   get layerCount () {
