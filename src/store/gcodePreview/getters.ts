@@ -160,7 +160,7 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
   },
 
   getLayerStart: (state, getters) => (layer: number): number => {
-    let z = 0
+    let z = -Infinity
     let index = 0
     const moves = getters.getMoves
 
@@ -169,7 +169,7 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
         z = moves[index].z
       }
 
-      if (z === layer && moves[index].e !== undefined) {
+      if (z === layer && moves[index].e > 0) {
         break
       }
     }
