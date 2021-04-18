@@ -29,7 +29,7 @@
     </v-list-group>
 
     <v-list-group
-      v-if="devicePowerPluginEnabled"
+      v-if="devicePowerComponentEnabled"
       prepend-icon="$power"
       no-action>
       <template v-slot:activator>
@@ -92,7 +92,7 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import { Device } from '@/store/devicePower/types'
+import { Device } from '@/store/power/types'
 import StateMixin from '@/mixins/state'
 import ServicesMixin from '@/mixins/services'
 import { SocketActions } from '@/socketActions'
@@ -116,11 +116,11 @@ export default class SystemCommands extends Mixins(StateMixin, ServicesMixin) {
   }
 
   get powerDevices () {
-    return this.$store.state.devicePower.devices
+    return this.$store.state.power.devices
   }
 
-  get devicePowerPluginEnabled () {
-    return this.$store.getters['server/pluginSupport']('power')
+  get devicePowerComponentEnabled () {
+    return this.$store.getters['server/componentSupport']('power')
   }
 
   handleHostReboot () {

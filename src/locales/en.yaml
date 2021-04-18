@@ -23,8 +23,10 @@ app:
         printer
   chart:
     label:
-      current: Current
-      item: Item
+      current: Actual
+      item: Name
+      'off': Chart off
+      'on': Chart on
       power: Power
       target: Target
     tooltip:
@@ -33,6 +35,7 @@ app:
         />Click a power to toggle in the graph.
   console:
     label:
+      auto_scroll: Auto scroll
       hide_temp_waits: Hide temp waits
     placeholder:
       command: '''tab'' for autocomplete, ''help'' for commands ''arrows'' for history'
@@ -100,7 +103,6 @@ app:
       add_printer: Add printer
       adjust_layout: Adjust dashboard layout
       all: All
-      all_off: All off
       calibrate: Calibrate
       cancel: Cancel
       clear_profile: Clear Profile
@@ -110,9 +112,11 @@ app:
       preview-gcode: Preview Gcode
       edit: Edit
       extrude: Extrude
+      heaters_off: Heaters off
       load_all: Load all
       pause: Pause
       preheat: Preheat
+      presets: Presets
       quad_gantry_level: QGL
       reboot: Reboot
       remove: Remove
@@ -130,6 +134,7 @@ app:
       save: Save
       save_as: Save As
       save_restart: Save & Restart
+      send: Send
       shutdown: Shutdown
       socket_refresh: Force refresh
       upload: Upload
@@ -150,6 +155,7 @@ app:
       accel_to_decel: Accel to Decel
       acceleration: Acceleration
       add_camera: Add Camera
+      add_category: Add category
       add_preset: Add Preset
       api_url: API URL
       confirm: Confirm
@@ -164,6 +170,7 @@ app:
       layout: Layout
       longest_job: Longest job
       low: Low
+      move_macro: Move macro %{name}
       name: Name
       'off': 'Off'
       power: Power
@@ -180,12 +187,15 @@ app:
       total_print_time_avg: Avg per print
       total_time: Total time
       total_time_avg: Avg per print
+      uncategorized: Uncategorized
       used: used
       variance: Variance
       velocity: Velocity
       z_offset: Z Offset
     simple_form:
       error:
+        arrayofnums: Only numbers
+        exists: Already exists
         invalid_url: Invalid URL
         max: Max %{max}
         min: Min %{min}
@@ -198,18 +208,25 @@ app:
     table:
       header:
         actions: Actions
+        end_time: Ended
         estimated_time: Estimated time
-        filament_used: Filament
+        filament: Filament
+        filament_used: Used filament
+        first_layer_bed_temp: First layer bed temp
+        first_layer_extr_temp: First layer extruder temp
+        first_layer_height: First layer height
         height: Height
         last_printed: Last printed
         layer_height: Layer height
         modified: Modified
         name: Name
-        print_duration: Print Duration
+        print_duration: Print duration
         size: Size
         slicer: Slicer
+        slicer_version: Slicer version
         start_time: Started
         status: Status
+        total_duration: Total duration
     title:
       add_printer: Add Printer
       bedmesh: Bed Mesh
@@ -236,10 +253,12 @@ app:
       tune: Tune
     tooltip:
       estop: Emergency Stop
+      reload_klipper: Reloads klipper configuration.
+      reload_restart_klipper: Reloads klipper configuration and restarts MCU's.
+      restart_klipper: Restarts the klipper system service.
   history:
     msg:
       confirm: Are you sure? This will clear all history, and printer statistics
-      load_count: Represents the last {num} Jobs
   printer:
     state:
       busy: Busy
@@ -312,6 +331,7 @@ app:
       camera: Camera | Cameras
       general: General
       macros: Macros
+      manage_macros: Manage Macros
       theme: Theme
       thermal_presets: Thermal Presets
       tool: Tool
@@ -340,6 +360,7 @@ app:
       committed: Committed
       dirty: DIRTY
       invalid: INVALID
+      os_packages: OS Packages
       package_list: Package List
       up_to_date: UP TO DATE
     status:

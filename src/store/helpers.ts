@@ -11,6 +11,8 @@ import {
 import { SocketActions } from '@/socketActions'
 import store from '@/store'
 import { KlipperMesh, ProcessedMesh } from './mesh/types'
+import { AppTableHeader } from '@/types'
+import { AppTablePartialHeader } from '@/types/tableheaders'
 
 export const isOfType = <T> (
   varToBeChecked: any,
@@ -36,8 +38,8 @@ export const getThumb = (thumbnails: Thumbnail[], path: string, goLarge = true) 
           return {
             ...thumb,
             absolute_path: (path === '')
-              ? encodeURI(`${apiUrl}/server/files/gcodes/${thumb.relative_path}`)
-              : encodeURI(`${apiUrl}/server/files/gcodes/${path}/${thumb.relative_path}`)
+              ? encodeURI(`${apiUrl}/server/files/gcodes/${thumb.relative_path}?date=${new Date().getTime()}`)
+              : encodeURI(`${apiUrl}/server/files/gcodes/${path}/${thumb.relative_path}?date=${new Date().getTime()}`)
           }
         }
         if (thumb.data) {

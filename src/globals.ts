@@ -84,7 +84,11 @@ import {
   mdiHistory,
   mdiFilterOutline,
   mdiSourceCommit,
-  mdiArrowExpandUp
+  mdiArrowExpandUp,
+  mdiCloudCheck,
+  mdiCloudAlert,
+  mdiCircle,
+  mdiFolderMove
 } from '@mdi/js'
 
 /**
@@ -115,11 +119,12 @@ export const Globals = Object.freeze({
       macros: { name: 'macros', dispatch: 'macros/initMacros' },
       console: { name: 'console', dispatch: 'console/initConsole' },
       charts: { name: 'charts', dispatch: 'charts/initCharts' },
-      cameras: { name: 'cameras', dispatch: 'cameras/initCameras' }
+      cameras: { name: 'cameras', dispatch: 'cameras/initCameras' },
+      layout: { name: 'layout', dispatch: 'layout/initLayout' }
     }
   },
-  MOONRAKER_PLUGINS: {
-    power: { name: 'power', dispatch: 'devicePower/init' },
+  MOONRAKER_COMPONENTS: {
+    power: { name: 'power', dispatch: 'power/init' },
     updateManager: { name: 'update_manager', dispatch: 'version/init' },
     history: { name: 'history', dispatch: 'history/init' }
   },
@@ -128,8 +133,9 @@ export const Globals = Object.freeze({
   DOCS_ROOT: 'https://docs.fluidd.xyz',
   DOCS_REQUIRED_CONFIGURATION: 'https://docs.fluidd.xyz/configuration/initial_setup',
   DOCS_MULTIPLE_INSTANCES: 'https://docs.fluidd.xyz/configuration/multiple_printers',
-  DOCS_MOONRAKER_PLUGINS: 'https://docs.fluidd.xyz/configuration/moonraker',
-  DOCS_KLIPPER_CONFIG_REF: 'https://www.klipper3d.org/Config_Reference.html'
+  DOCS_MOONRAKER_COMPONENTS: 'https://docs.fluidd.xyz/configuration/moonraker',
+  DOCS_KLIPPER_CONFIG_REF: 'https://www.klipper3d.org/Config_Reference.html',
+  DOCS_MOONRAKER_CONFIG_REF: 'https://moonraker.readthedocs.io/en/latest/configuration/'
 })
 
 export const Icons = Object.freeze({
@@ -138,6 +144,7 @@ export const Icons = Object.freeze({
   limits: mdiArrowHorizontalLock,
   send: mdiSend,
   open: mdiOpenInApp,
+  move: mdiFolderMove,
   tabs: mdiCheckboxMultipleBlank,
   menu: mdiDotsVertical,
   menuAlt: mdiMenuDown,
@@ -159,6 +166,7 @@ export const Icons = Object.freeze({
   bell: mdiBellOutline,
   fireAlert: mdiFireAlert,
   snowflakeAlert: mdiSnowflakeAlert,
+  circle: mdiCircle,
   blankCircle: mdiCheckboxBlankCircleOutline,
   markedCircle: mdiRadioboxMarked,
   checkedCircle: mdiCheckCircleOutline,
@@ -219,7 +227,9 @@ export const Icons = Object.freeze({
   host: mdiDesktopTower,
   history: mdiHistory,
   filter: mdiFilterOutline,
-  commit: mdiSourceCommit
+  commit: mdiSourceCommit,
+  cloudCheck: mdiCloudCheck,
+  cloudAlert: mdiCloudAlert
 })
 
 export const Waits = Object.freeze({

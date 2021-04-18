@@ -10,10 +10,11 @@ import { server } from './server'
 import { printer } from './printer'
 import { config } from './config'
 import { files } from './files'
+import { layout } from './layout'
 import { charts } from './charts'
 import { console } from './console'
 import { macros } from './macros'
-import { devicePower } from './devicePower'
+import { power } from './power'
 import { history } from './history'
 import { version } from './version'
 import { cameras } from './cameras'
@@ -32,10 +33,11 @@ export default new Vuex.Store<RootState>({
     printer,
     config,
     files,
+    layout,
     charts,
     console,
     macros,
-    devicePower,
+    power,
     history,
     version,
     cameras,
@@ -50,7 +52,7 @@ export default new Vuex.Store<RootState>({
      */
     async reset ({ dispatch }, payload: string[]) {
       // Reset our color set.
-      Vue.$colorset.resetAll()
+      Vue.$colorset.forceResetAll()
 
       // Dispatch a reset for each registered module.
       const p: Promise<any>[] = []

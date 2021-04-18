@@ -3,6 +3,7 @@
     bottom
     left
     offset-y
+    transition="slide-x-transition"
   >
     <template v-slot:activator="{ on, attrs, value }">
       <app-btn
@@ -15,8 +16,7 @@
           $reprint
         </v-icon>
         {{ $t('app.general.btn.reprint') }}
-        <v-icon small class="ml-1" v-if="value">$chevronUp</v-icon>
-        <v-icon small class="ml-1" v-else>$chevronDown</v-icon>
+        <v-icon small class="ml-1" dense :class="{ 'rotate-180': value }">$chevronDown</v-icon>
       </app-btn>
     </template>
 

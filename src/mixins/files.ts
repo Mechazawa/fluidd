@@ -3,7 +3,7 @@ import Vue from 'vue'
 import { Component } from 'vue-property-decorator'
 import { getThumb } from '@/store/helpers'
 import { AxiosRequestConfig } from 'axios'
-import EventBus from '@/eventBus'
+// import { EventBus, FlashMessageTypes } from '@/eventBus'
 
 @Component
 export default class FilesMixin extends Vue {
@@ -72,9 +72,14 @@ export default class FilesMixin extends Vue {
       encodeURI(this.apiUrl + '/server/files/' + filepath + '?date=' + new Date().getTime()),
       o
     )
-      .then((response) => {
-        this.$store.dispatch('files/removeFileDownload')
+      .then(response => {
         return response
+      })
+      .catch(e => {
+        return e
+      })
+      .finally(() => {
+        this.$store.dispatch('files/removeFileDownload')
       })
   }
 
@@ -92,6 +97,7 @@ export default class FilesMixin extends Vue {
     const link = document.createElement('a')
     link.href = url
     link.setAttribute('download', filename)
+    link.setAttribute('target', '_blank')
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -103,8 +109,9 @@ export default class FilesMixin extends Vue {
    * @param path The path we're uploading to.
    * @param root The root we're downloading from.
    * @param andPrint If we should attempt to print this file or not.
+   * @param options Axios request options
    */
-  async uploadFile (file: File, path: string, root: string, andPrint: boolean) {
+  async uploadFile (file: File, path: string, root: string, andPrint: boolean, options?: AxiosRequestConfig) {
     const formData = new FormData()
     // let filename = file.name.replace(' ', '_')
     let filepath = `${path}/${file.name}`
@@ -131,6 +138,7 @@ export default class FilesMixin extends Vue {
       .post(
         this.apiUrl + '/server/files/upload',
         formData, {
+          ...options,
           headers: {
             'Content-Type': 'multipart/form-data'
           },
@@ -153,13 +161,18 @@ export default class FilesMixin extends Vue {
         }
       )
       .then((response) => {
-        this.$store.dispatch('files/removeFileUpload', filepath)
         return response
+      })
+      .catch(e => {
+        return e
+      })
+      .finally(() => {
+        this.$store.dispatch('files/removeFileUpload', filepath)
       })
   }
 
   // Upload some files.
-  async uploadFiles (files: FileList, path: string, root: string, andPrint: boolean) {
+  async uploadFiles (files: FileList | File[], path: string, root: string, andPrint: boolean) {
     // Add a file upload for each intended file.
     for (const file of files) {
       let filepath = `${path}/${file.name}`
@@ -184,7 +197,8 @@ export default class FilesMixin extends Vue {
       try {
         await this.uploadFile(file, path, root, andPrint)
       } catch (e) {
-        EventBus.$emit('flashMessage', { type: 'error', text: `Error uploading ${file.name}<br />${e}` })
+        return e
+        // EventBus.$emit('flashMessage', { type: 'error', text: `Error uploading ${file.name}<br />${e}` })
       }
     }
   }

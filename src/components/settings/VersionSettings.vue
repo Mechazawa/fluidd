@@ -43,7 +43,13 @@
           :title="packageTitle(component)"
         >
           <template v-slot:sub-title>
-            <span v-if="component.key !== 'system'">{{ component.version }}</span>
+            <span v-if="component.key !== 'system' && 'full_version_string' in component">
+              {{ component.full_version_string }}
+            </span>
+            <span v-else>
+              {{ component.version }}
+            </span>
+
             <span v-if="'remote_version' in component && hasUpdate(component.key)">
               -> {{ component.remote_version }}
             </span>
@@ -147,7 +153,7 @@ export default class VersionSettings extends Mixins(StateMixin) {
 
   packageTitle (component: HashVersion | OSPackage | ArtifactVersion) {
     if (component.key === 'system') {
-      return 'os packages'
+      return this.$t('app.version.label.os_packages')
     }
 
     return component.key
