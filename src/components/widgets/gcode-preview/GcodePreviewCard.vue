@@ -9,7 +9,7 @@
     @enabled="$emit('enabled', $event)">
 
     <template v-slot:title>
-      <v-icon left>$console</v-icon>
+      <v-icon left>$cubeScan</v-icon>
       <span class="font-weight-light">{{ $t('app.general.title.gcode_preview') }}</span>
     </template>
 
@@ -35,6 +35,7 @@
         <v-col cols="4">
           <app-btn color="secondary" text @click="reset">Reset</app-btn>
           <p>{{ layerCount }} Layers</p>
+          <p>Current Layer: {{ currentLayer }}({{ currentLayerHeight }})</p>
           <GcodePreviewControls/>
         </v-col>
       </v-row>
@@ -86,6 +87,10 @@ export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
 
   get layerCount () {
     return this.$store.getters['gcodePreview/getLayerCount']
+  }
+
+  get currentLayerHeight () {
+    return this.$store.getters['gcodePreview/getLayers'][this.currentLayer - 1] ?? 0
   }
 
   get followProgress () {

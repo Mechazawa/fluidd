@@ -28,6 +28,7 @@
       </g>
       <g id="nextLayer" class="layer" v-if="getOption('showNextLayer')">
         <path stroke="lightgrey" stroke-opacity="0.6"
+              :d="svgPathNext.extrusions"
               :stroke-width="extrusionLineWidth"/>
       </g>
     </svg>
