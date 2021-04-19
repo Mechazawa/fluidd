@@ -1,8 +1,9 @@
 import { GetterTree } from 'vuex'
-import { GcodePreviewState, LayerPaths, Move } from './types'
+import { GcodePreviewState, LayerPaths, Move, Point } from './types'
 import { RootState } from '../types'
 import { AppFile } from '@/store/files/types'
 import { binarySearch } from '@/store/helpers'
+import consola from 'consola'
 
 export const getters: GetterTree<GcodePreviewState, RootState> = {
   /**
@@ -29,16 +30,15 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
       if (move.z >= 0) {
         z = move.z
         pushed = false
-      } else if (!pushed && move.e > 0) {
+      }
+
+      if (!pushed && move.e > 0) {
         layers.add(z)
         pushed = true
       }
     }
 
-    // Convert to array and sort ascending
-    return Array
-      .from(layers)
-      .sort((a, b) => a - b)
+    return Array.from(layers)
   },
 
   getLayerCount: (state, getters): number => {
@@ -115,27 +115,44 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
       }
     }
 
+    let moveBuffer = []
     let traveling = true
 
+    // todo: arcs
     for (; index < moves.length && moves[index].filePosition <= filePosition; index++) {
       const move = moves[index]
       const z = (move.z ?? toolhead.z)
 
       if (move.e > 0) {
-        if (z > layer) {
+        if (z !== layer) {
+          while (moveBuffer.length > 0 && !moveBuffer[moveBuffer.length - 1].z) {
+            moveBuffer.shift()
+          }
+
+          if (moveBuffer[moveBuffer.length - 1].z === z) {
+            moveBuffer.shift()
+          }
+
+          path.moves += moveBuffer.map(move => move.path).join(' ') + ' '
+
           break
         }
 
         if (traveling) {
+          path.moves += moveBuffer.map(move => move.path).join(' ') + ' '
           path.extrusions += `M ${toolhead.x},${toolhead.y} `
           traveling = false
+          moveBuffer = []
         }
 
         Object.assign(toolhead, move)
         path.extrusions += `L ${toolhead.x},${toolhead.y} `
       } else {
         if (!traveling) {
-          path.moves += `M ${toolhead.x},${toolhead.y} `
+          moveBuffer.push({
+            z,
+            path: `M ${toolhead.x},${toolhead.y}`
+          })
           traveling = true
         }
 
@@ -147,7 +164,10 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
         }
 
         Object.assign(toolhead, move)
-        path.moves += `L ${toolhead.x},${toolhead.y} `
+        moveBuffer.push({
+          z,
+          path: `L ${toolhead.x},${toolhead.y}`
+        })
       }
     }
 
