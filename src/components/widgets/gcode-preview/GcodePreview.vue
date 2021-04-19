@@ -8,26 +8,29 @@
         </svg>
       </defs>
       <g :transform="groupTransform">
-        <g id="previousLayer" class="layer" v-if="getOption('showPreviousLayer')">
+        <g id="previousLayer" class="layer" v-if="getViewerOption('showPreviousLayer')">
           <path stroke="lightgrey" :stroke-width="extrusionLineWidth" stroke-opacity="0.6"
                 :d="svgPathPrevious.extrusions"/>
         </g>
         <g id="currentLayer" class="layer">
-          <path :d="svgPathCurrent.extrusions" v-if="getOption('showExtrusions')"
+          <path :d="svgPathCurrent.extrusions" v-if="getViewerOption('showExtrusions')"
                 :stroke="themeIsDark ? 'white' : 'black'"
                 :stroke-width="extrusionLineWidth"/>
-          <path :d="svgPathCurrent.moves" v-if="getOption('showMoves')"
+          <path :d="svgPathCurrent.moves" v-if="getViewerOption('showMoves')"
                 stroke="gray"
                 :stroke-width="moveLineWidth"/>
 
-          <g id="retractions" v-if="getOption('showRetractions') && svgPathCurrent.retractions.length > 0">
+          <circle id="toolhead" fill="green" r=".6"
+                  :cx="svgPathCurrent.toolhead.x" :cy="svgPathCurrent.toolhead.y"/>
+
+          <g id="retractions" v-if="getViewerOption('showRetractions') && svgPathCurrent.retractions.length > 0">
             <use v-for="({x, y}, index) of svgPathCurrent.retractions"
                  :key="`retraction-${index + 1}`" xlink:href="#retraction"
                  :x="x - (retractionIconSize / 2)" :y="y - retractionIconSize"/>
             <!-- Calculate anchor to be bottom-center of the triangle -->
           </g>
         </g>
-        <g id="nextLayer" class="layer" v-if="getOption('showNextLayer')">
+        <g id="nextLayer" class="layer" v-if="getViewerOption('showNextLayer')">
           <path stroke="lightgrey" stroke-opacity="0.6"
                 :d="svgPathNext.extrusions"
                 :stroke-width="extrusionLineWidth"/>
@@ -63,6 +66,13 @@ export default class GcodePreview extends Mixins(StateMixin) {
   })
   height!: string
 
+  @Prop({
+    type: Number,
+    default: Infinity
+  })
+  progress!: number;
+
+  // todo: fix layerNr and layerHeight naming
   @Prop({
     type: Number,
     default: 0
@@ -152,11 +162,12 @@ export default class GcodePreview extends Mixins(StateMixin) {
     const layerNr = Math.max(this.layer, 1)
     const layer = this.$store.getters['gcodePreview/getLayers'][layerNr - 1]
 
-    if (this.getOption('followProgress')) {
+    // todo: fix this naming hell
+    if (this.getViewerOption('followProgress')) {
       return this.$store.getters['gcodePreview/getLayerPaths'](layer, this.filePosition)
     }
 
-    return this.$store.getters['gcodePreview/getLayerPaths'](layer)
+    return this.$store.getters['gcodePreview/getLayerPaths'](layer, this.progress)
   }
 
   get svgPathPrevious (): LayerPaths {
@@ -193,7 +204,7 @@ export default class GcodePreview extends Mixins(StateMixin) {
     this.panzoom?.zoomTo(0, 0, 1)
   }
 
-  getOption (name: string) {
+  getViewerOption (name: string) {
     return this.$store.getters['gcodePreview/getViewerOption'](name)
   }
 }

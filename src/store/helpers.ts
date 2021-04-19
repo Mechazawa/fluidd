@@ -338,14 +338,14 @@ export const binarySearch = (arr: any[], comp: Function, approx = false): number
       }
 
       bottomBound = index
-      index = Math.round((topBound - index) / 2 + index)
+      index = Math.ceil((topBound - index) / 2 + index)
     } else if (result < 0) {
       if (bottomBound === index) {
         return approx ? index : -1
       }
 
       topBound = index
-      index = Math.round((index - bottomBound) / 2 + bottomBound)
+      index = Math.floor((index - bottomBound) / 2 + bottomBound)
     } else {
       return index
     }

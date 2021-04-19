@@ -1,9 +1,8 @@
 import { GetterTree } from 'vuex'
-import { GcodePreviewState, LayerPaths, Move, Point } from './types'
+import { GcodePreviewState, LayerPaths, Move } from './types'
 import { RootState } from '../types'
 import { AppFile } from '@/store/files/types'
 import { binarySearch } from '@/store/helpers'
-import consola from 'consola'
 
 export const getters: GetterTree<GcodePreviewState, RootState> = {
   /**
@@ -43,41 +42,6 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
 
   getLayerCount: (state, getters): number => {
     return getters.getLayers.length
-  },
-
-  getDimensions: (state, getters): { x: { min: number; max: number }; y: { min: number; max: number }; z: { min: number; max: number } } => {
-    const output = {
-      x: {
-        min: Infinity,
-        max: -Infinity
-      },
-      y: {
-        min: Infinity,
-        max: -Infinity
-      },
-      z: {
-        min: Infinity,
-        max: -Infinity
-      }
-    }
-
-    for (const move of getters.getMoves) {
-      for (const [axis, obj] of Object.entries(output)) {
-        const position: number = move[axis]
-
-        if (position === undefined) {
-          continue
-        }
-
-        if (position > obj.max) {
-          obj.max = position
-        } else if (position < obj.min) {
-          obj.min = position
-        }
-      }
-    }
-
-    return output
   },
 
   getLayerPaths: (state, getters) => (layer: number, filePosition = Infinity): LayerPaths => {
@@ -133,8 +97,6 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
             moveBuffer.shift()
           }
 
-          path.moves += moveBuffer.map(move => move.path).join(' ') + ' '
-
           break
         }
 
@@ -171,6 +133,8 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
       }
     }
 
+    path.moves += moveBuffer.map(move => move.path).join(' ') + ' '
+
     path.toolhead = {
       x: toolhead.x,
       y: toolhead.y
@@ -206,7 +170,7 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
   getCurrentMoveIndex: (state, getters, rootState) => {
     const filePosition = rootState.printer?.printer.virtual_sdcard.file_position
 
-    return binarySearch(getters.getMoves, (val: Move) => filePosition - (val?.filePosition ?? 0), true)
+    return binarySearch(getters.getMoves, (val: Move) => filePosition - (val.filePosition ?? 0), true)
   },
 
   getCurrentLayer: (state, getters) => {
@@ -214,7 +178,7 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     let extruded = false
 
     if (moves.length <= 1 || getters.getCurrentMoveIndex <= 0) {
-      return moves[0]?.z ?? 0
+      return getters.getLayers[0] ?? 0
     }
 
     // Lookback

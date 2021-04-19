@@ -30,8 +30,23 @@
         </v-col>
       </v-row>
       <v-row>
+        <v-col>
+          <app-slider
+            label="Progress"
+            :value="currentLayerFileRange[1]"
+            :min="currentLayerFileRange[0]"
+            :max="currentLayerFileRange[1]"
+            :disabled="currentLayerFileRange[1] === 0"
+            valueSuffix="bytes"
+            instant
+            input-md
+            @input="layerProgress = $event">
+          </app-slider>
+        </v-col>
+      </v-row>
+      <v-row>
         <v-col cols="8">
-          <gcode-preview width="100%" :layer="currentLayer" :enabled="layerCount > 0"></gcode-preview>
+          <gcode-preview width="100%" :layer="currentLayer" :progress="layerProgress" :enabled="layerCount > 0"></gcode-preview>
         </v-col>
         <v-col cols="4">
           <app-btn color="secondary" text @click="reset">Reset</app-btn>
@@ -67,6 +82,7 @@ export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
   enabled!: boolean
 
   currentLayer = 1
+  layerProgress = Infinity
 
   @Watch('layerCount')
   onLayerCountChanged () {
@@ -76,19 +92,30 @@ export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
   @Watch('followProgress')
   onFollowProgressChanged () {
     if (this.followProgress) {
-      this.currentLayer = this.$store.getters['gcodePreview/getCurrentLayer']
+      this.currentLayer = this.findLayerNumber(this.$store.getters['gcodePreview/getCurrentLayer'])
     }
   }
 
   @Watch('currentLayer')
   onCurrentLayerChanged () {
-    if (this.followProgress && this.currentLayer !== this.$store.getters['gcodePreview/getCurrentLayer']) {
+    if (this.followProgress && this.currentLayer !== this.findLayerNumber(this.$store.getters['gcodePreview/getCurrentLayer'])) {
       this.followProgress = false
+    }
+  }
+
+  @Watch('filePosition')
+  onFilePositionChanged () {
+    if (this.followProgress) {
+      this.layerProgress = this.filePosition
     }
   }
 
   get file (): AppFile | undefined {
     return this.$store.getters['gcodePreview/getFile']
+  }
+
+  get filePosition (): number {
+    return this.$store.state.printer.printer.virtual_sdcard.file_position
   }
 
   get cardTitle () {
@@ -115,6 +142,39 @@ export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
 
   set followProgress (value) {
     this.$store.commit('gcodePreview/setViewerState', { followProgress: value })
+  }
+
+  get currentLayerFileRange (): [number, number] {
+    const moves = this.$store.getters['gcodePreview/getMoves']
+
+    if (moves.length === 0) {
+      return [0, 0]
+    }
+
+    const currentLayer = this.$store.getters['gcodePreview/getLayers'][this.currentLayer - 1]
+    const firstMove = moves[this.$store.getters['gcodePreview/getLayerStart'](currentLayer)]
+
+    if (!firstMove) {
+      return [0, 0]
+    }
+
+    const nextLayer = this.$store.getters['gcodePreview/getLayers'][this.currentLayer]
+    let lastMove = moves[this.$store.getters['gcodePreview/getLayerStart'](nextLayer) - 1]
+
+    if (!lastMove) {
+      lastMove = moves[moves.length - 1].filePosition
+    }
+
+    return [
+      firstMove.filePosition,
+      lastMove.filePosition
+    ]
+  }
+
+  findLayerNumber (layer: number) {
+    const layers: number[] = this.$store.getters['gcodePreview/getLayers']
+
+    return layers.findIndex(value => value === layer) + 1
   }
 
   reset () {
