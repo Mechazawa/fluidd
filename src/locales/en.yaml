@@ -109,7 +109,7 @@ app:
       close: Close
       config_reference: Config Reference
       download: Download
-      preview-gcode: Preview Gcode
+      preview_gcode: Preview Gcode
       edit: Edit
       extrude: Extrude
       heaters_off: Heaters off

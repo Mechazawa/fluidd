@@ -49,20 +49,7 @@
         ></v-text-field>
       </app-setting>
 
-      <v-divider></v-divider>
-
-      <app-setting :title="$t('app.setting.label.reset')">
-        <app-btn
-          outlined
-          small
-          color="primary"
-          @click="handleReset"
-        >
-          {{ $t('app.setting.btn.reset') }}
-        </app-btn>
-      </app-setting>
-
-      <v-divider></v-divider>
+      <v-divider/>
 
       <app-setting :title="$t('app.setting.label.flip_horizontal')">
         <v-switch
@@ -73,7 +60,7 @@
         ></v-switch>
       </app-setting>
 
-      <v-divider></v-divider>
+      <v-divider/>
 
       <app-setting :title="$t('app.setting.label.flip_vertical')">
         <v-switch
@@ -82,6 +69,19 @@
           hide-details
           class="mb-5"
         ></v-switch>
+      </app-setting>
+
+      <v-divider/>
+
+      <app-setting :title="$t('app.setting.label.reset')">
+        <app-btn
+          outlined
+          small
+          color="primary"
+          @click="handleReset"
+        >
+          {{ $t('app.setting.btn.reset') }}
+        </app-btn>
       </app-setting>
     </v-card>
   </div>

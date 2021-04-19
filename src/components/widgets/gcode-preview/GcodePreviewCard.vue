@@ -49,7 +49,6 @@
           <gcode-preview width="100%" :layer="currentLayer" :progress="layerProgress" :enabled="layerCount > 0"></gcode-preview>
         </v-col>
         <v-col cols="4">
-          <app-btn color="secondary" text @click="reset">Reset</app-btn>
           <p>{{ layerCount }} Layers</p>
           <p>Current Layer: {{ currentLayer }}({{ currentLayerHeight }})</p>
           <GcodePreviewControls/>
@@ -175,10 +174,6 @@ export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
     const layers: number[] = this.$store.getters['gcodePreview/getLayers']
 
     return layers.findIndex(value => value === layer) + 1
-  }
-
-  reset () {
-    this.$store.dispatch('gcodePreview/reset')
   }
 }
 </script>

@@ -69,7 +69,7 @@
               <v-list-item-icon>
                 <v-icon>$magnify</v-icon>
               </v-list-item-icon>
-              <v-list-item-title>{{ $t('app.general.btn.preview-gcode') }}</v-list-item-title>
+              <v-list-item-title>{{ $t('app.general.btn.preview_gcode') }}</v-list-item-title>
             </v-list-item>
             <v-list-item
               link
