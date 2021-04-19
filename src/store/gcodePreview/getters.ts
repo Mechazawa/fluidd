@@ -178,6 +178,12 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     const currentIndex = getters.getCurrentMoveIndex
     const layerStarts: [number, number][] = Array.from(getters.getAllLayerStarts.entries())
 
-    return layerStarts.find((_, index) => currentIndex < (layerStarts[index + 1]?.[1] ?? Infinity))?.[0] ?? 0
+    for (let index = 0; index < layerStarts.length - 1; index++) {
+      if (currentIndex < layerStarts[index + 1]?.[1]) {
+        return layerStarts[index][0]
+      }
+    }
+
+    return layerStarts[layerStarts.length - 1]?.[0] ?? 0
   }
 }
