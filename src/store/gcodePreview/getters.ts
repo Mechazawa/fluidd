@@ -143,28 +143,29 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     return path
   },
 
-  getLayerStart: (state, getters) => (layer: number): number => {
+  getAllLayerStarts: (state, getters): Map<number, number> => {
     let z = -Infinity
     let index = 0
+    let zStart = 0
+    const output = new Map()
     const moves = getters.getMoves
 
     for (; index < moves.length; index++) {
-      if (moves[index].z !== undefined) {
+      if (moves[index].z !== undefined && z !== moves[index].z) {
         z = moves[index].z
+        zStart = index
       }
 
-      if (z === layer && moves[index].e > 0) {
-        break
-      }
-    }
-
-    for (; index >= 0; index--) {
-      if (moves[index].z !== undefined) {
-        return index
+      if (moves[index].e > 0 && !output.has(z)) {
+        output.set(z, zStart)
       }
     }
 
-    return -1
+    return output
+  },
+
+  getLayerStart: (state, getters) => (layer: number): number => {
+    return getters.getAllLayerStarts.get(layer) ?? -1
   },
 
   getCurrentMoveIndex: (state, getters, rootState) => {
