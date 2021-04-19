@@ -6,6 +6,17 @@
       dense
       class="mb-4">
 
+      <app-setting :title="$t('app.setting.label.draw_background')">
+        <v-switch
+          @click.native.stop
+          v-model="drawBackground"
+          hide-details
+          class="mb-5"
+        ></v-switch>
+      </app-setting>
+
+      <v-divider/>
+
       <app-setting :title="$t('app.setting.label.extrusion_line_width')">
         <v-text-field
           :value="extrusionLineWidth"
@@ -155,6 +166,18 @@ export default class GcodePreviewSettings extends Vue {
   set flipVertical (value: boolean) {
     this.$store.dispatch('config/saveByPath', {
       path: 'uiSettings.gcodePreview.flip.vertical',
+      value,
+      server: true
+    })
+  }
+
+  get drawBackground () {
+    return this.$store.state.config.uiSettings.gcodePreview.drawBackground
+  }
+
+  set drawBackground (value: boolean) {
+    this.$store.dispatch('config/saveByPath', {
+      path: 'uiSettings.gcodePreview.drawBackground',
       value,
       server: true
     })

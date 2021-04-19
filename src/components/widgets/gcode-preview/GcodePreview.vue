@@ -13,7 +13,7 @@
         </pattern>
       </defs>
       <g :transform="groupTransform">
-        <g id="background">
+        <g id="background" v-if="drawBackground">
           <rect :height="viewBox.y.max - viewBox.y.min"
                 :width="viewBox.x.max - viewBox.x.min"
                 style="fill: url(#backgroundPattern);"
@@ -110,6 +110,10 @@ export default class GcodePreview extends Mixins(StateMixin) {
 
   get retractionIconSize () {
     return this.$store.state.config.uiSettings.gcodePreview.retractionIconSize
+  }
+
+  get drawBackground () {
+    return this.$store.state.config.uiSettings.gcodePreview.drawBackground
   }
 
   get groupTransform () {

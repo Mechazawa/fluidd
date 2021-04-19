@@ -92,6 +92,7 @@ export const defaultState = (): ConfigState => {
         extrusionLineWidth: 0.3,
         moveLineWidth: 0.1,
         retractionIconSize: 0.2,
+        drawBackground: true,
         flip: {
           horizontal: false,
           vertical: true

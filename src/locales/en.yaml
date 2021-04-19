@@ -319,6 +319,7 @@ app:
       retraction_icon_size: Retraction Icon Size
       flip_horizontal: Horizontal Flip
       flip_vertical: Vertical Flip
+      draw_background: Draw Background
     timer_options:
       duration: Duration only
       duration_description: Similar to a klipper LCD, this only shows duration with no estimates.
