@@ -62,6 +62,16 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
       } else if (command === 'G91') {
         extrusionMode = PositioningMode.Relative
         positioningMode = PositioningMode.Relative
+      } else if (command === 'G92') {
+        if (extrusionMode === PositioningMode.Absolute) {
+          toolhead.e = args.e ?? toolhead.e
+        }
+
+        if (positioningMode === PositioningMode.Absolute) {
+          toolhead.x = args.x ?? toolhead.x
+          toolhead.y = args.y ?? toolhead.y
+          toolhead.z = args.z ?? toolhead.z
+        }
       }
 
       if (move) {
