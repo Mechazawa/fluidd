@@ -168,54 +168,16 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     return getters.getAllLayerStarts.get(layer) ?? -1
   },
 
-  getCurrentMoveIndex: (state, getters, rootState) => {
+  getCurrentMoveIndex: (state, getters, rootState): number => {
     const filePosition = rootState.printer?.printer.virtual_sdcard.file_position
 
     return binarySearch(getters.getMoves, (val: Move) => filePosition - (val.filePosition ?? 0), true)
   },
 
-  getCurrentLayer: (state, getters) => {
-    const moves = getters.getMoves
-    let extruded = false
+  getCurrentLayer: (state, getters): number => {
+    const currentIndex = getters.getCurrentMoveIndex
+    const layerStarts: [number, number][] = Array.from(getters.getAllLayerStarts.entries())
 
-    if (moves.length <= 1 || getters.getCurrentMoveIndex <= 0) {
-      return getters.getLayers[0] ?? 0
-    }
-
-    // Lookback
-    for (let index = getters.getCurrentMoveIndex; index >= 0; index--) {
-      if (moves[index].e !== undefined) {
-        extruded = true
-      }
-
-      if (moves[index].z !== undefined) {
-        if (extruded) {
-          return moves[index].z
-        }
-
-        // extrusion lookahead
-        // nasty
-        for (let index2 = getters.getCurrentMoveIndex; index2 < moves.length && moves[index2].z !== undefined; index++) {
-          if (moves[index2].e !== undefined) {
-            return moves[index].z
-          }
-        }
-
-        break
-      }
-    }
-
-    // Lookahead
-    for (let index = getters.getCurrentMoveIndex; index < moves.length; index++) {
-      if (moves[index].e !== undefined) {
-        extruded = true
-      }
-
-      if (moves[index].z !== undefined && extruded) {
-        return moves[index].z
-      }
-    }
-
-    return 0
+    return layerStarts.find((_, index) => currentIndex < (layerStarts[index + 1]?.[1] ?? Infinity))?.[0] ?? 0
   }
 }
