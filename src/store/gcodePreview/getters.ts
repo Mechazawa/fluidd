@@ -21,23 +21,7 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
   },
 
   getLayers: (state, getters): number[] => {
-    const layers: Set<number> = new Set()
-    let z = -1
-    let pushed = true
-
-    for (const move of getters.getMoves) {
-      if (move.z >= 0) {
-        z = move.z
-        pushed = false
-      }
-
-      if (!pushed && move.e > 0) {
-        layers.add(z)
-        pushed = true
-      }
-    }
-
-    return Array.from(layers)
+    return Array.from(getters.getAllLayerStarts.keys())
   },
 
   getLayerCount: (state, getters): number => {
@@ -145,12 +129,11 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
 
   getAllLayerStarts: (state, getters): Map<number, number> => {
     let z = -Infinity
-    let index = 0
     let zStart = 0
     const output = new Map()
     const moves = getters.getMoves
 
-    for (; index < moves.length; index++) {
+    for (let index = 0; index < moves.length; index++) {
       if (moves[index].z !== undefined && z !== moves[index].z) {
         z = moves[index].z
         zStart = index
