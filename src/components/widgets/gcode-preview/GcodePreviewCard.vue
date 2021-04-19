@@ -150,23 +150,11 @@ export default class GcodePreviewCard extends Mixins(StateMixin, FilesMixin) {
       return [0, 0]
     }
 
-    const currentLayer = this.$store.getters['gcodePreview/getLayers'][this.currentLayer - 1]
-    const firstMove = moves[this.$store.getters['gcodePreview/getLayerStart'](currentLayer)]
-
-    if (!firstMove) {
-      return [0, 0]
-    }
-
-    const nextLayer = this.$store.getters['gcodePreview/getLayers'][this.currentLayer]
-    let lastMove = moves[this.$store.getters['gcodePreview/getLayerStart'](nextLayer) - 1]
-
-    if (!lastMove) {
-      lastMove = moves[moves.length - 1].filePosition
-    }
+    const layerHeight = this.$store.getters['gcodePreview/getLayers'][this.currentLayer]
 
     return [
-      firstMove.filePosition,
-      lastMove.filePosition
+      this.$store.getters['gcodePreview/getLayerStart'](layerHeight),
+      this.$store.getters['gcodePreview/getLayerEnd'](layerHeight)
     ]
   }
 

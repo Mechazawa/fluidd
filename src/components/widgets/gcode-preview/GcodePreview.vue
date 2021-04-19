@@ -6,8 +6,19 @@
         <svg id="retraction" :width="retractionIconSize" :height="retractionIconSize" viewBox="0 0 10 10">
           <path d="M 10,10 L 5,0 L 0,10 Z" fill="red" fill-opacity="0.9"/>
         </svg>
+        <pattern id="backgroundPattern" patternUnits="userSpaceOnUse" width="10" height="10">
+          <rect width="10" height="10" stroke-width=".1"
+                :stroke="themeIsDark ? 'black' : 'white'"
+                :fill="themeIsDark ? '#555' : 'lightgrey'"/>
+        </pattern>
       </defs>
       <g :transform="groupTransform">
+        <g id="background">
+          <rect :height="viewBox.y.max - viewBox.y.min"
+                :width="viewBox.x.max - viewBox.x.min"
+                style="fill: url(#backgroundPattern);"
+                :x="viewBox.x.min" :y="viewBox.y.min"/>
+        </g>
         <g id="previousLayer" class="layer" v-if="getViewerOption('showPreviousLayer')">
           <path stroke="lightgrey" :stroke-width="extrusionLineWidth" stroke-opacity="0.6"
                 :d="svgPathPrevious.extrusions"/>
@@ -70,7 +81,7 @@ export default class GcodePreview extends Mixins(StateMixin) {
     type: Number,
     default: Infinity
   })
-  progress!: number;
+  progress!: number
 
   // todo: fix layerNr and layerHeight naming
   @Prop({
@@ -129,17 +140,44 @@ export default class GcodePreview extends Mixins(StateMixin) {
     return `scale(${scale.join()}) translate(${transform.join()})`
   }
 
-  get svgViewBox () {
+  get viewBox () {
     const {
       stepper_x: stepperX,
       stepper_y: stepperY
     } = this.$store.getters['printer/getPrinterSettings']()
 
     if (stepperX === undefined || stepperY === undefined) {
-      return '0 0 100 100'
+      return {
+        x: {
+          min: 0,
+          max: 100
+        },
+        y: {
+          min: 0,
+          max: 100
+        }
+      }
     }
 
-    return `${stepperX.position_min} ${stepperY.position_min} ${stepperX.position_max} ${stepperY.position_max}`
+    return {
+      x: {
+        min: stepperX.position_min,
+        max: stepperX.position_max
+      },
+      y: {
+        min: stepperY.position_min,
+        max: stepperY.position_max
+      }
+    }
+  }
+
+  get svgViewBox () {
+    const {
+      x,
+      y
+    } = this.viewBox
+
+    return `${x.min} ${y.min} ${x.max} ${y.max}`
   }
 
   get defaultLayerPaths (): LayerPaths {

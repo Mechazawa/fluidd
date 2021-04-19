@@ -1,9 +1,9 @@
 import { ChartData } from './charts/types'
 import {
-  FileChangeItem,
-  FilePaths,
   AppFile,
   AppFileWithMeta,
+  FileChangeItem,
+  FilePaths,
   KlipperFile,
   KlipperFileWithMeta,
   Thumbnail
@@ -11,6 +11,7 @@ import {
 import { SocketActions } from '@/socketActions'
 import store from '@/store'
 import { KlipperMesh, ProcessedMesh } from './mesh/types'
+import { Point } from '@/store/gcodePreview/types'
 
 export const isOfType = <T> (
   varToBeChecked: any,
@@ -350,4 +351,31 @@ export const binarySearch = (arr: any[], comp: Function, approx = false): number
       return index
     }
   }
+}
+
+/**
+ * Taken from https://stackoverflow.com/a/18473154
+ */
+export function polarToCartesian (center: Point, radius: number, angleInDegrees: number): Point {
+  const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0
+
+  return {
+    x: center.x + (radius * Math.cos(angleInRadians)),
+    y: center.y + (radius * Math.sin(angleInRadians))
+  }
+}
+
+/**
+ * Taken from https://stackoverflow.com/a/18473154
+ */
+export function describeSvgArc (center: Point, radius: number, startAngle: number, endAngle: number): string {
+  const start = polarToCartesian(center, radius, endAngle)
+  const end = polarToCartesian(center, radius, startAngle)
+
+  const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1'
+
+  return [
+    'M', start.x, start.y,
+    'A', radius, radius, 0, largeArcFlag, 0, end.x, end.y
+  ].join(' ')
 }

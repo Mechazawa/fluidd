@@ -1,5 +1,5 @@
 import { GetterTree } from 'vuex'
-import { GcodePreviewState, LayerPaths, Move } from './types'
+import { GcodePreviewState, LayerPaths, Move, Point } from './types'
 import { RootState } from '../types'
 import { AppFile } from '@/store/files/types'
 import { binarySearch } from '@/store/helpers'
@@ -28,30 +28,37 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     return getters.getLayers.length
   },
 
-  getLayerPaths: (state, getters) => (layer: number, filePosition = Infinity): LayerPaths => {
+  getToolHeadPosition: (state, getters) => (moveIndex: number): Point => {
+    const isNaN = Number.isNaN
+    const moves = getters.getMoves
+    const output = {
+      x: NaN,
+      y: NaN
+    }
+
+    for (let i = moveIndex; i >= 0 && isNaN(output.x) && isNaN(output.y); i--) {
+      if (isNaN(output.x) && moves[i].x !== undefined) {
+        output.x = moves[i].x
+      }
+
+      if (isNaN(output.y) && moves[i].y !== undefined) {
+        output.y = moves[i].y
+      }
+    }
+
+    return {
+      x: output.x ?? 0,
+      y: output.y ?? 0
+    }
+  },
+
+  getLayerPaths: (state, getters) => (layer: number, filePosition = getters.getLayerEnd(layer)): LayerPaths => {
     let index = getters.getLayerStart(layer)
     const moves = getters.getMoves
     const toolhead = {
-      x: NaN,
-      y: NaN,
+      ...getters.getToolHeadPosition(index),
       z: layer
     }
-
-    // Prime toolhead
-    for (; index >= 0 && (Number.isNaN(toolhead.x) || Number.isNaN(toolhead.y)); index--) {
-      const move = moves[index]
-
-      if (Number.isNaN(toolhead.x) && move.x !== undefined) {
-        toolhead.x = move.x
-      }
-
-      if (Number.isNaN(toolhead.y) && move.y !== undefined) {
-        toolhead.y = move.y
-      }
-    }
-
-    toolhead.x = Number.isNaN(toolhead.x) ? 0 : toolhead.x
-    toolhead.y = Number.isNaN(toolhead.y) ? 0 : toolhead.y
 
     const path: LayerPaths = {
       extrusions: '',
@@ -63,42 +70,23 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
       }
     }
 
-    let moveBuffer = []
     let traveling = true
 
     // todo: arcs
     for (; index < moves.length && moves[index].filePosition <= filePosition; index++) {
       const move = moves[index]
-      const z = (move.z ?? toolhead.z)
 
       if (move.e > 0) {
-        if (z !== layer) {
-          while (moveBuffer.length > 0 && !moveBuffer[moveBuffer.length - 1].z) {
-            moveBuffer.shift()
-          }
-
-          if (moveBuffer[moveBuffer.length - 1].z === z) {
-            moveBuffer.shift()
-          }
-
-          break
-        }
-
         if (traveling) {
-          path.moves += moveBuffer.map(move => move.path).join(' ') + ' '
           path.extrusions += `M ${toolhead.x},${toolhead.y} `
           traveling = false
-          moveBuffer = []
         }
 
         Object.assign(toolhead, move)
         path.extrusions += `L ${toolhead.x},${toolhead.y} `
       } else {
         if (!traveling) {
-          moveBuffer.push({
-            z,
-            path: `M ${toolhead.x},${toolhead.y}`
-          })
+          path.moves += `M ${toolhead.x},${toolhead.y}`
           traveling = true
         }
 
@@ -110,14 +98,9 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
         }
 
         Object.assign(toolhead, move)
-        moveBuffer.push({
-          z,
-          path: `L ${toolhead.x},${toolhead.y}`
-        })
+        path.moves += `L ${toolhead.x},${toolhead.y}`
       }
     }
-
-    path.moves += moveBuffer.map(move => move.path).join(' ') + ' '
 
     path.toolhead = {
       x: toolhead.x,
@@ -149,6 +132,23 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
 
   getLayerStart: (state, getters) => (layer: number): number => {
     return getters.getAllLayerStarts.get(layer) ?? -1
+  },
+
+  getLayerEnd: (state, getters) => (layer: number): number => {
+    const layerStarts: [number, number][] = Array.from(getters.getAllLayerStarts.entries())
+    const layerIndex = layerStarts.findIndex(value => value[0] === layer)
+
+    if (layerIndex === -1) {
+      return 0
+    } else if (layerIndex === layerStarts.length - 1) {
+      const moves = getters.getMoves
+
+      return moves[moves.length - 1].filePosition ?? Infinity
+    } else {
+      const moves = getters.getMoves
+
+      return moves[layerStarts[layerIndex][1]].filePosition - 1
+    }
   },
 
   getCurrentMoveIndex: (state, getters, rootState): number => {

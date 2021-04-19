@@ -4,6 +4,7 @@ import { RootState } from '../types'
 import { filterObject, parseGcode } from '@/store/helpers'
 import { AppFile } from '@/store/files/types'
 
+/* eslint no-fallthrough: 0 */
 export const actions: ActionTree<GcodePreviewState, RootState> = {
   /**
    * Reset our store
@@ -37,41 +38,46 @@ export const actions: ActionTree<GcodePreviewState, RootState> = {
 
       let move: Move | null = null
 
-      if (/^G[0-1]$/i.test(command)) {
-        move = filterObject(args, [
-          'x', 'y', 'z', 'e'
-        ]) as LinearMove
-      } else if (/^G[2-3]$/i.test(command)) {
-        move = {
-          ...filterObject(args, [
-            'x', 'y', 'z', 'e',
-            'i', 'j', 'r'
-          ]),
-          direction: command === 'G2'
-            ? Rotation.Clockwise : Rotation.CounterClockwise
-        } as ArcMove
-      } else if (command === 'M82') {
-        extrusionMode = PositioningMode.Absolute
-        toolhead.e = 0
-      } else if (command === 'M83') {
-        extrusionMode = PositioningMode.Relative
-      } else if (command === 'G90') {
-        extrusionMode = PositioningMode.Absolute
-        positioningMode = PositioningMode.Absolute
-        toolhead.e = 0
-      } else if (command === 'G91') {
-        extrusionMode = PositioningMode.Relative
-        positioningMode = PositioningMode.Relative
-      } else if (command === 'G92') {
-        if (extrusionMode === PositioningMode.Absolute) {
-          toolhead.e = args.e ?? toolhead.e
-        }
+      switch (command) {
+        case 'G0':
+        case 'G1':
+          move = filterObject(args, [
+            'x', 'y', 'z', 'e'
+          ]) as LinearMove
+          break
+        case 'G2':
+        case 'G3':
+          move = {
+            ...filterObject(args, [
+              'x', 'y', 'z', 'e',
+              'i', 'j', 'r'
+            ]),
+            direction: command === 'G2'
+              ? Rotation.Clockwise : Rotation.CounterClockwise
+          } as ArcMove
+          break
+        case 'G90':
+          positioningMode = PositioningMode.Absolute
+        case 'M82':
+          extrusionMode = PositioningMode.Absolute
+          toolhead.e = 0
+          break
+        case 'G91':
+          positioningMode = PositioningMode.Relative
+        case 'M83':
+          extrusionMode = PositioningMode.Relative
+          break
+        case 'G92':
+          if (extrusionMode === PositioningMode.Absolute) {
+            toolhead.e = args.e ?? toolhead.e
+          }
 
-        if (positioningMode === PositioningMode.Absolute) {
-          toolhead.x = args.x ?? toolhead.x
-          toolhead.y = args.y ?? toolhead.y
-          toolhead.z = args.z ?? toolhead.z
-        }
+          if (positioningMode === PositioningMode.Absolute) {
+            toolhead.x = args.x ?? toolhead.x
+            toolhead.y = args.y ?? toolhead.y
+            toolhead.z = args.z ?? toolhead.z
+          }
+          break
       }
 
       if (move) {
