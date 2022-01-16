@@ -25,6 +25,7 @@ export interface LinearMove {
   z?: number;
   e?: number;
 
+  tool?: number;
   filePosition?: number;
 }
 

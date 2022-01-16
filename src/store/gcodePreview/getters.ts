@@ -32,6 +32,16 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     return state.parserProgress
   },
 
+  getTools: (state, getters): number[] => {
+    const tools: Set<number> = new Set()
+
+    for (const move of getters.getMoves) {
+      tools.add(move.tool)
+    }
+
+    return Array.from(tools).filter(n => Number.isFinite(n))
+  },
+
   getLayers: (state, getters): Layer[] => {
     const output = []
     const moves = getters.getMoves

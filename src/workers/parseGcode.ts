@@ -36,6 +36,7 @@ export default function parseGcode (gcode: string, subject: Subject<number>) {
     y: 0,
     z: 0,
     e: 0,
+    tool: 0,
     filePosition: 0
   }
 
@@ -59,6 +60,10 @@ export default function parseGcode (gcode: string, subject: Subject<number>) {
     }
 
     let move: Move | null = null
+
+    if (command[0] === 'T') {
+      toolhead.tool = Number(command.slice(1))
+    }
 
     switch (command) {
       case 'G0':
@@ -151,6 +156,7 @@ export default function parseGcode (gcode: string, subject: Subject<number>) {
       toolhead.y = move.y ?? toolhead.y
       toolhead.z = move.z ?? toolhead.z
 
+      move.tool = toolhead.tool
       move.filePosition = toolhead.filePosition
 
       moves.push(Object.freeze(move))
