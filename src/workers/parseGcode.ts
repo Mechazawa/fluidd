@@ -7,9 +7,9 @@ function parseLine (line: string) {
   const [, command, args = ''] = line
     .trim()
     .split(';', 2)[0]
-    .split(/^([a-z][0-9]+)\s+/i)
+    .split(/^([a-z][0-9]+)\s*/i)
 
-  if (!/^(G|M)\d+$/.test(command)) {
+  if (!/^(G|M|T)\d+$/i.test(command)) {
     return null
   }
 

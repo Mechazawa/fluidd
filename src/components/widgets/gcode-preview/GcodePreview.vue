@@ -33,27 +33,29 @@
                 :d="svgPathPrevious.extrusions" :shape-rendering="shapeRendering"/>
         </g>
         <g id="currentLayer" class="layer">
-          <path :d="svgPathCurrent.extrusions" v-if="getViewerOption('showExtrusions')"
-                :stroke="themeIsDark ? 'white' : 'black'"
-                :stroke-width="extrusionLineWidth"
-                :shape-rendering="shapeRendering"/>
-          <path :d="svgPathCurrent.moves" v-if="getViewerOption('showMoves')"
-                stroke="gray"
-                :stroke-width="moveLineWidth"
-                :shape-rendering="shapeRendering"/>
+          <g v-for="tool in tools" :id="`tool-${tool}`" :key="tool">
+            <path :d="getSvgPathCurrent(tool).extrusions" v-if="getViewerOption('showExtrusions')"
+                  :stroke="toolColors[tool]"
+                  :stroke-width="extrusionLineWidth"
+                  :shape-rendering="shapeRendering"/>
+            <path :d="getSvgPathCurrent(tool).moves" v-if="getViewerOption('showMoves')"
+                  stroke="gray"
+                  :stroke-width="moveLineWidth"
+                  :shape-rendering="shapeRendering"/>
+          </g>
 
           <circle id="toolhead" fill="green" r=".6"
-                  :cx="svgPathCurrent.toolhead.x" :cy="svgPathCurrent.toolhead.y"/>
+                  :cx="getSvgPathCurrent().toolhead.x" :cy="getSvgPathCurrent().toolhead.y"/>
 
-          <g id="retractions" v-if="getViewerOption('showRetractions') && svgPathCurrent.retractions.length > 0">
-            <use v-for="({x, y}, index) of svgPathCurrent.retractions"
+          <g id="retractions" v-if="getViewerOption('showRetractions') && getSvgPathCurrent().retractions.length > 0">
+            <use v-for="({x, y}, index) of getSvgPathCurrent().retractions"
                  :key="`retraction-${index + 1}`" xlink:href="#retraction"
                  :x="x - (retractionIconSize / 2)" :y="flipY ? y : y - retractionIconSize"/>
             <!-- Calculate anchor to be bottom-center of the triangle -->
           </g>
 
-          <g id="extrusionStarts" v-if="getViewerOption('showRetractions') && svgPathCurrent.retractions.length > 0">
-            <use v-for="({x, y}, index) of svgPathCurrent.extrusionStarts"
+          <g id="extrusionStarts" v-if="getViewerOption('showRetractions') && getSvgPathCurrent().retractions.length > 0">
+            <use v-for="({x, y}, index) of getSvgPathCurrent().extrusionStarts"
                  :key="`extrusion-start-${index + 1}`" xlink:href="#extrusionStart"
                  :x="x - (retractionIconSize / 2)" :y="flipY ? y : y - retractionIconSize"/>
             <!-- Calculate anchor to be bottom-center of the triangle -->
@@ -193,6 +195,14 @@ export default class GcodePreview extends Mixins(StateMixin) {
     }
   }
 
+  get tools (): number[] {
+    return this.$store.getters['gcodePreview/getTools']
+  }
+
+  get toolColors (): { [key: number]: string } {
+    return ['red', 'green', 'blue', 'yellow', 'orange', 'purple']
+  }
+
   get viewBox (): BBox {
     const bounds = this.$store.getters['gcodePreview/getBounds']
 
@@ -248,7 +258,7 @@ export default class GcodePreview extends Mixins(StateMixin) {
     }
   }
 
-  get svgPathCurrent (): LayerPaths {
+  getSvgPathCurrent (tool?: number): LayerPaths {
     if (this.disabled) {
       return this.defaultLayerPaths
     }
@@ -258,10 +268,10 @@ export default class GcodePreview extends Mixins(StateMixin) {
     if (this.getViewerOption('followProgress')) {
       const end = this.$store.getters['gcodePreview/getMoveIndexByFilePosition'](this.filePosition)
 
-      return this.$store.getters['gcodePreview/getPaths'](layer?.move ?? 0, end)
+      return this.$store.getters['gcodePreview/getPaths'](layer?.move ?? 0, end, tool)
     }
 
-    return this.$store.getters['gcodePreview/getPaths'](layer?.move ?? 0, this.progress)
+    return this.$store.getters['gcodePreview/getPaths'](layer?.move ?? 0, this.progress, tool)
   }
 
   get svgPathPrevious (): LayerPaths {
@@ -345,7 +355,7 @@ export default class GcodePreview extends Mixins(StateMixin) {
 </script>
 
 <style lang="scss" scoped>
-.layer > path {
+.layer > path, .layer > [id^=tool-] > path {
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;

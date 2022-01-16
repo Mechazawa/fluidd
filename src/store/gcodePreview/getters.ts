@@ -156,7 +156,7 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     }
   },
 
-  getPaths: (state, getters) => (startMove: number, endMove: number): LayerPaths => {
+  getPaths: (state, getters) => (startMove: number, endMove: number, tool?: number): LayerPaths => {
     const toolhead = getters.getToolHeadPosition(startMove)
     const moves = getters.getMoves
 
@@ -176,6 +176,16 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     for (let index = startMove; index <= endMove && index < moves.length; index++) {
       const move = moves[index]
 
+      if (tool !== undefined && move.tool !== tool) {
+        while (index <= endMove && index < moves.length && moves[index].tool !== tool) {
+          Object.assign(toolhead, moves[index])
+
+          index++
+        }
+
+        traveling = move.e === 0
+      }
+
       if (move.e > 0) {
         if (traveling) {
           path.extrusions += `M${toolhead.x},${toolhead.y}`
@@ -188,7 +198,6 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
         }
 
         path.extrusions += moveToSVGPath(toolhead, move)
-        Object.assign(toolhead, move)
       } else {
         if (!traveling) {
           path.moves += `M${toolhead.x},${toolhead.y}`
@@ -203,8 +212,9 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
         }
 
         path.moves += moveToSVGPath(toolhead, move)
-        Object.assign(toolhead, move)
       }
+
+      Object.assign(toolhead, move)
     }
 
     path.toolhead = {
@@ -215,10 +225,10 @@ export const getters: GetterTree<GcodePreviewState, RootState> = {
     return path
   },
 
-  getLayerPaths: (state, getters) => (layerNr: LayerNr): LayerPaths => {
+  getLayerPaths: (state, getters) => (layerNr: LayerNr, tool?: number): LayerPaths => {
     const layers = getters.getLayers
 
-    return getters.getPaths(layers[layerNr]?.move ?? 0, (layers[layerNr + 1]?.move ?? Infinity) - 1)
+    return getters.getPaths(layers[layerNr]?.move ?? 0, (layers[layerNr + 1]?.move ?? Infinity) - 1, tool)
   },
 
   getMoveIndexByFilePosition: (state, getters) => (filePosition: number): number => {
